@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Building2 } from 'lucide-react';
+import logoImg from '../logo.png'; // <-- ADDED THIS LINE
 
 interface CompanyLogoProps {
   className?: string;
@@ -30,7 +31,7 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
     return (
       <div className={`relative inline-flex items-center justify-center shrink-0 ${className}`}>
         <img
-          src="/logo.png"
+          src={logoImg} // <-- CHANGED THIS LINE
           alt="Thulir Design & QS Services FZE Logo"
           onError={() => setImgError(true)}
           className={`object-contain ${currentSizeClass} ${imgClassName}`}
