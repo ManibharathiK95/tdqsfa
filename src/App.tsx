@@ -320,7 +320,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen app-background text-slate-100 font-sans selection:bg-emerald-600 selection:text-white">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-20 right-6 z-50 flex items-center space-x-2.5 bg-zinc-900 border border-emerald-500/60 text-white px-4 py-2.5 rounded-xl shadow-2xl animate-fade-in text-xs font-bold">
