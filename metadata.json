@@ -1,0 +1,6 @@
+{
+  "name": "TDQS F&A PORTAL",
+  "description": "Financial & Accounting ERP Management System for Thulir Design & QS Services FZE across Design, Rebar Detailing, QS, and Architecture departments with role-based isolation, pin login, invoices, quotations, and expense ledgers in AED.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
