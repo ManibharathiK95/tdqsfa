@@ -47,8 +47,8 @@ export const DEPARTMENTS: DepartmentInfo[] = [
 export const INITIAL_USERS: User[] = [
   {
     id: 'usr_admin',
-    name: 'Manibharathi (Admin)',
-    pin: '1234',
+    name: 'Admin',
+    pin: '1334',
     role: 'admin',
     departmentId: 'all',
     email: 'admin@thulirqs.com',
@@ -56,7 +56,7 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr_des',
-    name: 'Design Lead',
+    name: 'Design',
     pin: '1111',
     role: 'staff',
     departmentId: 'design',
@@ -65,7 +65,7 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr_rbr',
-    name: 'Rebar Specialist',
+    name: 'Rebar',
     pin: '2222',
     role: 'staff',
     departmentId: 'rebar',
@@ -74,7 +74,7 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr_qs',
-    name: 'Senior QS Officer',
+    name: 'QS & CA',
     pin: '3333',
     role: 'staff',
     departmentId: 'qs',
@@ -83,7 +83,7 @@ export const INITIAL_USERS: User[] = [
   },
   {
     id: 'usr_arc',
-    name: 'Chief Architect',
+    name: 'Architect',
     pin: '4444',
     role: 'staff',
     departmentId: 'architecture',
@@ -95,13 +95,13 @@ export const INITIAL_USERS: User[] = [
 export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   companyName: 'Thulir Design & QS Services FZE',
   tagline: 'Precision Architectural Design, Quantity Surveying & Engineering Detailing',
-  email: 'accounts@thulirqs.com',
-  phone: '+971 4 123 4567',
-  address: 'Commercial Tower, Business Bay, Dubai, UAE',
-  taxId: 'TRN-100482910300003',
+  email: 'info@thulirdesignqs.com',
+  phone: '+971 55 667 6720',
+  address: 'Sharjah Freezone, Sharjah, UAE',
+  taxId: 'Nill',
   currencySymbol: 'AED',
   currencyCode: 'AED',
-  defaultTaxRate: 5,
+  defaultTaxRate: 0,
 };
 
 export const INITIAL_VENDORS: VendorContractor[] = [
