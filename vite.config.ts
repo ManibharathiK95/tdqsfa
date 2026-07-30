@@ -5,7 +5,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(({ mode }) => {
   return {
-    base: './',
+    // Change this from './' to your repository name
+    base: '/tdqsfa/', 
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
