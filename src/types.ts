@@ -147,4 +147,10 @@ export interface CompanySettings {
   currencySymbol: string;
   currencyCode: string;
   defaultTaxRate: number;
+  bankName: string;
+  accountNumber: string;
+  iban: string;
+  swiftCode: string;
 }
+
+
