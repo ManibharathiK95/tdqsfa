@@ -32,6 +32,8 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
   const primaryDate = isInvoice ? inv!.issueDate : quot!.date;
   const secondaryDate = isInvoice ? inv!.dueDate : quot!.validUntil;
 
+  const hasBankDetails = !!(companySettings.bankName && companySettings.iban);
+
   const handlePrint = () => {
     window.print();
   };
@@ -47,7 +49,6 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             </span>
             <span className="text-xs text-zinc-300 font-mono font-bold">{docNo}</span>
           </div>
-
           <div className="flex items-center space-x-2">
             <button
               onClick={handlePrint}
@@ -62,9 +63,9 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
           </div>
         </div>
 
-        {/* Printable Invoice Body */}
+        {/* Printable Document Body */}
         <div className="bg-white text-zinc-900 p-8 rounded-xl mt-4 shadow-xl font-sans text-xs space-y-6 border border-zinc-200">
-          {/* Header Row */}
+          {/* Header */}
           <div className="flex justify-between items-start border-b border-zinc-200 pb-6">
             <div>
               <div className="flex items-center space-x-3">
@@ -79,7 +80,6 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
               <p className="text-[10px] text-zinc-600 mt-2">{companySettings.address}</p>
               <p className="text-[10px] text-zinc-600">{companySettings.email} • Tax ID: {companySettings.taxId}</p>
             </div>
-
             <div className="text-right">
               <h1 className="text-2xl font-black uppercase tracking-wider text-emerald-950">
                 {isInvoice ? 'INVOICE' : 'ESTIMATE'}
@@ -92,7 +92,7 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             </div>
           </div>
 
-          {/* Client & Project Info */}
+          {/* Client & Project */}
           <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
             <div>
               <p className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Billed To:</p>
@@ -106,7 +106,7 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             </div>
           </div>
 
-          {/* Line Items Table */}
+          {/* Line Items */}
           <div>
             <table className="w-full text-left border-collapse text-xs">
               <thead>
@@ -134,7 +134,7 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             </table>
           </div>
 
-          {/* Totals Summary */}
+          {/* Totals */}
           <div className="flex justify-end pt-4 border-t border-slate-200">
             <div className="w-64 space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-600">
@@ -157,7 +157,6 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                   {formatCurrency(doc.totalAmount, companySettings)}
                 </span>
               </div>
-
               {isInvoice && (
                 <>
                   <div className="flex justify-between text-slate-600 pt-1">
@@ -174,6 +173,19 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
               )}
             </div>
           </div>
+
+          {/* Bank Details on Print */}
+          {hasBankDetails && (
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+              <p className="text-[10px] font-bold uppercase text-slate-500 tracking-wider mb-2">Bank Details (for AED B2B Transfer)</p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[11px]">
+                <div className="flex justify-between"><span className="text-slate-500">Bank:</span><span className="text-slate-900 font-semibold">{companySettings.bankName}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Account:</span><span className="text-slate-900 font-mono">{companySettings.accountNumber}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">IBAN:</span><span className="text-slate-900 font-mono">{companySettings.iban}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">SWIFT:</span><span className="text-slate-900 font-mono">{companySettings.swiftCode}</span></div>
+              </div>
+            </div>
+          )}
 
           {/* Footer Terms */}
           <div className="border-t border-slate-200 pt-4 text-[10px] text-slate-500 space-y-1">
