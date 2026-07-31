@@ -102,10 +102,13 @@ export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   currencySymbol: 'AED',
   currencyCode: 'AED',
   defaultTaxRate: 0,
+  bankName: 'Emirates NBD',
+  accountNumber: '0345678901',
+  iban: 'AE07 0331 2345 6789 0123 456',
+  swiftCode: 'EBILAEAD',
 };
 
 export const INITIAL_VENDORS: VendorContractor[] = [
-  // Design
   {
     id: 'v_des_01',
     deptId: 'design',
@@ -144,8 +147,6 @@ export const INITIAL_VENDORS: VendorContractor[] = [
     notes: 'Annual BIM software license renewal.',
     createdAt: '2026-01-15',
   },
-
-  // Rebar
   {
     id: 'v_rbr_01',
     deptId: 'rebar',
@@ -183,8 +184,6 @@ export const INITIAL_VENDORS: VendorContractor[] = [
     balanceDue: 0,
     createdAt: '2026-02-10',
   },
-
-  // QS
   {
     id: 'v_qs_01',
     deptId: 'qs',
@@ -222,8 +221,6 @@ export const INITIAL_VENDORS: VendorContractor[] = [
     balanceDue: 4800,
     createdAt: '2026-02-05',
   },
-
-  // Architecture
   {
     id: 'v_arc_01',
     deptId: 'architecture',
@@ -248,13 +245,13 @@ export const INITIAL_VENDORS: VendorContractor[] = [
 export const INITIAL_QUOTATIONS: Quotation[] = [
   {
     id: 'q_des_101',
-    quotationNo: 'EST-DES-2026-001',
+    quotationNo: 'TDQS-QTE-2603-001',
     deptId: 'design',
     clientName: 'Metro Transit Infra Corp',
     clientEmail: 'procurement@metrotransit.org',
     projectTitle: 'Overpass Bridge Structural Design & Finite Element Analysis',
     date: '2026-03-01',
-    validUntil: '2026-04-01',
+    validUntil: '2026-03-31',
     status: 'approved',
     items: [
       {
@@ -269,7 +266,7 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
         id: 'li_2',
         description: 'Seismic & Thermal expansion simulation report',
         quantity: 1,
-        unit: 'Report',
+        unit: 'Lump Sum',
         unitPrice: 4500,
         amount: 4500,
       },
@@ -285,20 +282,20 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
   },
   {
     id: 'q_rbr_102',
-    quotationNo: 'EST-RBR-2026-001',
+    quotationNo: 'TDQS-QTE-2603-002',
     deptId: 'rebar',
     clientName: 'Skyline Construction Group',
     clientEmail: 'billing@skylineconst.com',
     projectTitle: 'Commercial Tower B - Foundation & Column Rebar Shop Drawings',
     date: '2026-03-05',
-    validUntil: '2026-04-05',
+    validUntil: '2026-03-20',
     status: 'sent',
     items: [
       {
         id: 'li_3',
         description: 'Bar Bending Schedules (BBS) for Raft Foundation (850 Tons Steel)',
         quantity: 850,
-        unit: 'Tons',
+        unit: 'Ton',
         unitPrice: 22,
         amount: 18700,
       },
@@ -306,7 +303,7 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
         id: 'li_4',
         description: 'Column & Shear Wall Placement Drawings (Level G to 15)',
         quantity: 15,
-        unit: 'Floors',
+        unit: 'Sheet',
         unitPrice: 950,
         amount: 14250,
       },
@@ -322,13 +319,13 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
   },
   {
     id: 'q_qs_103',
-    quotationNo: 'EST-QSC-2026-001',
+    quotationNo: 'TDQS-QTE-2603-003',
     deptId: 'qs',
     clientName: 'Harbor City Real Estate Developers',
     clientEmail: 'tenders@harborcitydev.com',
     projectTitle: 'Luxury Oceanfront Resort - Bill of Quantities & Tender Documentation',
     date: '2026-03-10',
-    validUntil: '2026-04-10',
+    validUntil: '2026-04-09',
     status: 'approved',
     items: [
       {
@@ -357,13 +354,13 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
   },
   {
     id: 'q_arc_104',
-    quotationNo: 'EST-ARC-2026-001',
+    quotationNo: 'TDQS-QTE-2603-004',
     deptId: 'architecture',
     clientName: 'Verdant Eco Communities',
     clientEmail: 'projects@verdanteco.org',
     projectTitle: 'Eco-Lodge Masterplan Concept & Architectural Working Drawings',
     date: '2026-03-12',
-    validUntil: '2026-04-12',
+    validUntil: '2026-04-11',
     status: 'draft',
     items: [
       {
@@ -393,10 +390,9 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
 ];
 
 export const INITIAL_INVOICES: Invoice[] = [
-  // Design
   {
     id: 'inv_des_201',
-    invoiceNo: 'INV-DES-2026-001',
+    invoiceNo: 'TDQS-INV-2603-001',
     deptId: 'design',
     quotationId: 'q_des_101',
     clientName: 'Metro Transit Infra Corp',
@@ -410,7 +406,7 @@ export const INITIAL_INVOICES: Invoice[] = [
         id: 'li_inv_1',
         description: 'Overpass Bridge Structural Design & Finite Element Analysis (30% Advance)',
         quantity: 1,
-        unit: 'Milestone',
+        unit: 'Lump Sum',
         unitPrice: 7245,
         amount: 7245,
       },
@@ -428,13 +424,13 @@ export const INITIAL_INVOICES: Invoice[] = [
   },
   {
     id: 'inv_des_202',
-    invoiceNo: 'INV-DES-2026-002',
+    invoiceNo: 'TDQS-INV-2603-002',
     deptId: 'design',
     clientName: 'Apex Highrise Developers',
     clientEmail: 'accounts@apexdev.com',
     projectTitle: '30-Story Podium Steel Frame Design & Connection Details',
     issueDate: '2026-03-20',
-    dueDate: '2026-04-20',
+    dueDate: '2026-04-19',
     items: [
       {
         id: 'li_inv_2',
@@ -453,15 +449,13 @@ export const INITIAL_INVOICES: Invoice[] = [
     paidAmount: 5000,
     balanceDue: 11800,
     status: 'partial',
-    notes: 'Partial payment received of $5,000.',
-    paymentTerms: 'Balance due by April 20, 2026.',
+    notes: 'Partial payment received of AED 5,000.',
+    paymentTerms: 'Balance due by April 19, 2026.',
     createdAt: '2026-03-20',
   },
-
-  // Rebar
   {
     id: 'inv_rbr_203',
-    invoiceNo: 'INV-RBR-2026-001',
+    invoiceNo: 'TDQS-INV-2603-003',
     deptId: 'rebar',
     quotationId: 'q_rbr_102',
     clientName: 'Skyline Construction Group',
@@ -475,7 +469,7 @@ export const INITIAL_INVOICES: Invoice[] = [
         id: 'li_inv_3',
         description: 'Bar Bending Schedules (BBS) for Raft Foundation (850 Tons Steel)',
         quantity: 850,
-        unit: 'Tons',
+        unit: 'Ton',
         unitPrice: 22,
         amount: 18700,
       },
@@ -490,11 +484,9 @@ export const INITIAL_INVOICES: Invoice[] = [
     paymentTerms: 'Net 30 Days',
     createdAt: '2026-03-18',
   },
-
-  // QS
   {
     id: 'inv_qs_204',
-    invoiceNo: 'INV-QSC-2026-001',
+    invoiceNo: 'TDQS-INV-2603-004',
     deptId: 'qs',
     quotationId: 'q_qs_103',
     clientName: 'Harbor City Real Estate Developers',
@@ -532,11 +524,9 @@ export const INITIAL_INVOICES: Invoice[] = [
     paymentTerms: 'Paid in Full',
     createdAt: '2026-03-22',
   },
-
-  // Architecture
   {
     id: 'inv_arc_205',
-    invoiceNo: 'INV-ARC-2026-001',
+    invoiceNo: 'TDQS-INV-2603-005',
     deptId: 'architecture',
     clientName: 'Horizon Luxury Villas',
     clientEmail: 'charlotte@horizonvillas.com',
@@ -570,9 +560,9 @@ export const INITIAL_INVOICES: Invoice[] = [
 export const INITIAL_RECEIPTS: Receipt[] = [
   {
     id: 'rec_01',
-    receiptNo: 'RCT-2026-001',
+    receiptNo: 'TDQS-RCPT-2603-001',
     deptId: 'design',
-    invoiceNo: 'INV-DES-2026-001',
+    invoiceNo: 'TDQS-INV-2603-001',
     clientOrVendorName: 'Metro Transit Infra Corp',
     type: 'incoming',
     paymentDate: '2026-03-16',
@@ -585,9 +575,9 @@ export const INITIAL_RECEIPTS: Receipt[] = [
   },
   {
     id: 'rec_02',
-    receiptNo: 'RCT-2026-002',
+    receiptNo: 'TDQS-RCPT-2603-002',
     deptId: 'qs',
-    invoiceNo: 'INV-QSC-2026-001',
+    invoiceNo: 'TDQS-INV-2603-004',
     clientOrVendorName: 'Harbor City Real Estate Developers',
     type: 'incoming',
     paymentDate: '2026-03-23',
@@ -600,9 +590,9 @@ export const INITIAL_RECEIPTS: Receipt[] = [
   },
   {
     id: 'rec_03',
-    receiptNo: 'RCT-2026-003',
+    receiptNo: 'TDQS-RCPT-2603-003',
     deptId: 'design',
-    invoiceNo: 'INV-DES-2026-002',
+    invoiceNo: 'TDQS-INV-2603-002',
     clientOrVendorName: 'Apex Highrise Developers',
     type: 'incoming',
     paymentDate: '2026-03-22',
@@ -615,7 +605,7 @@ export const INITIAL_RECEIPTS: Receipt[] = [
   },
   {
     id: 'rec_04',
-    receiptNo: 'RCT-2026-004',
+    receiptNo: 'TDQS-RCPT-2603-004',
     deptId: 'rebar',
     clientOrVendorName: 'Atlas Rebar Detailing Subcontractors',
     type: 'outgoing',
@@ -629,52 +619,10 @@ export const INITIAL_RECEIPTS: Receipt[] = [
   },
 ];
 
+// NOTE: Only MANUAL expense transactions here.
+// Income is derived from incoming receipts. Outgoing receipts + manual expenses = total expense.
+// Auto-created duplicates from receipts have been REMOVED to fix the duplication bug.
 export const INITIAL_TRANSACTIONS: Transaction[] = [
-  // Income
-  {
-    id: 'tx_01',
-    deptId: 'design',
-    transactionType: 'income',
-    category: 'Structural Design Fees',
-    amount: 7607.25,
-    date: '2026-03-16',
-    payeeOrPayer: 'Metro Transit Infra Corp',
-    referenceNo: 'INV-DES-2026-001',
-    receiptId: 'rec_01',
-    notes: 'Milestone 1 design completion.',
-    status: 'verified',
-    createdAt: '2026-03-16',
-  },
-  {
-    id: 'tx_02',
-    deptId: 'qs',
-    transactionType: 'income',
-    category: 'BOQ & Valuation Fees',
-    amount: 36275,
-    date: '2026-03-23',
-    payeeOrPayer: 'Harbor City Real Estate Developers',
-    referenceNo: 'INV-QSC-2026-001',
-    receiptId: 'rec_02',
-    notes: 'Full payment for Resort BOQ package.',
-    status: 'verified',
-    createdAt: '2026-03-23',
-  },
-
-  // Expenses
-  {
-    id: 'tx_03',
-    deptId: 'rebar',
-    transactionType: 'expense',
-    category: 'Subcontractor Detailing Fees',
-    amount: 15000,
-    date: '2026-03-20',
-    payeeOrPayer: 'Atlas Rebar Detailing Subcontractors',
-    referenceNo: 'PAY-VEN-1029',
-    receiptId: 'rec_04',
-    notes: 'Rebar drafting payout.',
-    status: 'verified',
-    createdAt: '2026-03-20',
-  },
   {
     id: 'tx_04',
     deptId: 'design',
