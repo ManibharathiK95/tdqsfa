@@ -15,15 +15,15 @@ export const DEPARTMENTS: DepartmentInfo[] = [
     name: 'Design Department',
     code: 'DES',
     description: 'Structural engineering design, 3D modeling, and calculation analysis.',
-    iconName: 'Compass',
+    iconName: 'Blueprint',
     accentColor: 'blue',
   },
   {
     id: 'rebar',
     name: 'Rebar Detailing',
     code: 'RBR',
-    description: 'Bar bending schedules (BBS), rebar placement drawings, and steel shop detailing.',
-    iconName: 'Layers',
+    description: 'Bar bending schedules (BBS), rebar placement drawings, and steel shop drawings.',
+    iconName: 'Rebar',
     accentColor: 'amber',
   },
   {
