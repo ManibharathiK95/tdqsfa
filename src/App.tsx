@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   DepartmentId,
   User,
@@ -21,7 +21,43 @@ import { ReceiptModal } from './components/modals/ReceiptModal';
 import { TransactionModal } from './components/modals/TransactionModal';
 import { AdminSettingsModal } from './components/modals/AdminSettingsModal';
 import { ViewInvoiceModal } from './components/modals/ViewInvoiceModal';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+
+// ─── In-memory sequential number counter ───
+const docCounters: Record<string, number> = {};
+
+function scanDocNo(docNo: string, prefix: string) {
+  if (!docNo || !docNo.startsWith(prefix)) return;
+  const parts = docNo.split('-');
+  // Format: TDQS-QTE-yymm-00x → parts: ['TDQS','QTE','yymm','00x']
+  if (parts.length === 4) {
+    const key = `${parts[0]}-${parts[1]}-${parts[2]}`;
+    const seq = parseInt(parts[3], 10);
+    if (!isNaN(seq)) {
+      docCounters[key] = Math.max(docCounters[key] || 0, seq);
+    }
+  }
+}
+
+function initCounters(
+  quotations: Quotation[],
+  invoices: Invoice[],
+  receipts: Receipt[]
+) {
+  quotations.forEach((q) => scanDocNo(q.quotationNo, 'TDQS-QTE'));
+  invoices.forEach((i) => scanDocNo(i.invoiceNo, 'TDQS-INV'));
+  receipts.forEach((r) => scanDocNo(r.receiptNo, 'TDQS-RCPT'));
+}
+
+function getNextDocNo(prefix: string): string {
+  const now = new Date();
+  const yymm =
+    String(now.getFullYear()).slice(-2) +
+    String(now.getMonth() + 1).padStart(2, '0');
+  const key = `${prefix}-${yymm}`;
+  docCounters[key] = (docCounters[key] || 0) + 1;
+  return `${prefix}-${yymm}-${String(docCounters[key]).padStart(3, '0')}`;
+}
 
 export default function App() {
   // Persistence States
@@ -34,6 +70,11 @@ export default function App() {
   const [invoices, setInvoices] = useState<Invoice[]>(() => Storage.getInvoices());
   const [receipts, setReceipts] = useState<Receipt[]>(() => Storage.getReceipts());
   const [transactions, setTransactions] = useState<Transaction[]>(() => Storage.getTransactions());
+
+  // Initialize counters from existing data on first load
+  useEffect(() => {
+    initCounters(quotations, invoices, receipts);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Current User Session
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -62,12 +103,15 @@ export default function App() {
 
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
   const [editingQuotation, setEditingQuotation] = useState<Quotation | null>(null);
+  const [suggestedQteNo, setSuggestedQteNo] = useState('');
 
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [suggestedInvNo, setSuggestedInvNo] = useState('');
 
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptInvoice, setReceiptInvoice] = useState<Invoice | null>(null);
+  const [suggestedRcptNo, setSuggestedRcptNo] = useState('');
 
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -76,34 +120,20 @@ export default function App() {
   const [viewingDoc, setViewingDoc] = useState<Invoice | Quotation | null>(null);
   const [viewType, setViewType] = useState<'invoice' | 'quotation'>('invoice');
 
+  // Filter vendors for current department context
+  const contextVendors = useMemo(() => {
+    if (activeDeptId === 'all') return vendors;
+    return vendors.filter((v) => v.deptId === activeDeptId || v.status === 'active');
+  }, [vendors, activeDeptId]);
+
   // Sync to Storage on changes
-  useEffect(() => {
-    Storage.setUsers(users);
-  }, [users]);
-
-  useEffect(() => {
-    Storage.setCompanySettings(companySettings);
-  }, [companySettings]);
-
-  useEffect(() => {
-    Storage.setVendors(vendors);
-  }, [vendors]);
-
-  useEffect(() => {
-    Storage.setQuotations(quotations);
-  }, [quotations]);
-
-  useEffect(() => {
-    Storage.setInvoices(invoices);
-  }, [invoices]);
-
-  useEffect(() => {
-    Storage.setReceipts(receipts);
-  }, [receipts]);
-
-  useEffect(() => {
-    Storage.setTransactions(transactions);
-  }, [transactions]);
+  useEffect(() => { Storage.setUsers(users); }, [users]);
+  useEffect(() => { Storage.setCompanySettings(companySettings); }, [companySettings]);
+  useEffect(() => { Storage.setVendors(vendors); }, [vendors]);
+  useEffect(() => { Storage.setQuotations(quotations); }, [quotations]);
+  useEffect(() => { Storage.setInvoices(invoices); }, [invoices]);
+  useEffect(() => { Storage.setReceipts(receipts); }, [receipts]);
+  useEffect(() => { Storage.setTransactions(transactions); }, [transactions]);
 
   // Handle Login & Logout
   const handleLoginSuccess = (user: User) => {
@@ -138,8 +168,7 @@ export default function App() {
 
   const handleDeleteVendor = (vendorId: string) => {
     if (confirm('Delete this contractor/vendor record?')) {
-      const updated = vendors.filter((v) => v.id !== vendorId);
-      setVendors(updated);
+      setVendors(vendors.filter((v) => v.id !== vendorId));
       showToast('Vendor record deleted.', 'info');
     }
   };
@@ -159,8 +188,7 @@ export default function App() {
 
   const handleDeleteQuotation = (qId: string) => {
     if (confirm('Delete this quotation estimate?')) {
-      const updated = quotations.filter((q) => q.id !== qId);
-      setQuotations(updated);
+      setQuotations(quotations.filter((q) => q.id !== qId));
       showToast('Quotation deleted.', 'info');
     }
   };
@@ -168,7 +196,7 @@ export default function App() {
   const handleConvertToInvoice = (q: Quotation) => {
     const newInvoice: Invoice = {
       id: `inv_conv_${Date.now()}`,
-      invoiceNo: `INV-${q.deptId.toUpperCase()}-2026-${Math.floor(100 + Math.random() * 900)}`,
+      invoiceNo: getNextDocNo('TDQS-INV'),
       deptId: q.deptId,
       quotationId: q.id,
       clientName: q.clientName,
@@ -189,19 +217,24 @@ export default function App() {
       paymentTerms: 'Net 30 Days',
       createdAt: new Date().toISOString().slice(0, 10),
     };
-
     setInvoices([newInvoice, ...invoices]);
     showToast(`Quotation ${q.quotationNo} converted to Invoice ${newInvoice.invoiceNo}!`);
   };
 
   // Invoice Handlers
   const handleSaveInvoice = (invData: Partial<Invoice>) => {
+    // Guard: paidAmount must not exceed totalAmount
+    const data = { ...invData };
+    if (data.paidAmount && data.totalAmount && data.paidAmount > data.totalAmount) {
+      data.paidAmount = data.totalAmount;
+      data.balanceDue = 0;
+    }
     let updated: Invoice[];
     if (editingInvoice) {
-      updated = invoices.map((i) => (i.id === editingInvoice.id ? ({ ...i, ...invData } as Invoice) : i));
+      updated = invoices.map((i) => (i.id === editingInvoice.id ? ({ ...i, ...data } as Invoice) : i));
       showToast('Invoice updated successfully.');
     } else {
-      updated = [invData as Invoice, ...invoices];
+      updated = [data as Invoice, ...invoices];
       showToast('New invoice issued.');
     }
     setInvoices(updated);
@@ -209,29 +242,30 @@ export default function App() {
 
   const handleDeleteInvoice = (invId: string) => {
     if (confirm('Delete this invoice record?')) {
-      const updated = invoices.filter((i) => i.id !== invId);
-      setInvoices(updated);
+      setInvoices(invoices.filter((i) => i.id !== invId));
       showToast('Invoice deleted.', 'info');
     }
   };
 
-  // Receipt Handlers
+  // Receipt Handlers — FIXED: No longer auto-creates duplicate transactions
   const handleSaveReceipt = (recData: Partial<Receipt>) => {
     const newReceipt = recData as Receipt;
     setReceipts([newReceipt, ...receipts]);
 
-    // Update invoice if linked
+    // Update linked invoice paid amount
     if (newReceipt.invoiceNo) {
       const updatedInvoices = invoices.map((inv) => {
         if (inv.invoiceNo === newReceipt.invoiceNo || inv.id === newReceipt.invoiceNo) {
           const newPaid = (inv.paidAmount || 0) + newReceipt.amount;
           const newBalance = Math.max(0, inv.totalAmount - newPaid);
-          const newStatus = newBalance === 0 ? 'paid' : 'partial';
+          let newStatus: Invoice['status'] = 'partial';
+          if (newBalance <= 0) newStatus = 'paid';
+          else if (newPaid <= 0) newStatus = 'pending';
           return {
             ...inv,
-            paidAmount: newPaid,
+            paidAmount: Math.min(newPaid, inv.totalAmount),
             balanceDue: newBalance,
-            status: newStatus as Invoice['status'],
+            status: newStatus,
           };
         }
         return inv;
@@ -239,34 +273,39 @@ export default function App() {
       setInvoices(updatedInvoices);
     }
 
-    // Record automatically to ledger transaction
-    const newTx: Transaction = {
-      id: `tx_auto_${Date.now()}`,
-      deptId: newReceipt.deptId,
-      transactionType: newReceipt.type === 'incoming' ? 'income' : 'expense',
-      category: newReceipt.type === 'incoming' ? 'Client Bill Collection' : 'Vendor Payment Disbursement',
-      amount: newReceipt.amount,
-      date: newReceipt.paymentDate,
-      payeeOrPayer: newReceipt.clientOrVendorName,
-      referenceNo: newReceipt.receiptNo,
-      receiptId: newReceipt.id,
-      notes: newReceipt.notes,
-      status: 'verified',
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
-    setTransactions([newTx, ...transactions]);
-
+    // NO auto-transaction creation — income/expense derives from receipts
     showToast(`Payment receipt ${newReceipt.receiptNo} recorded!`);
   };
 
   const handleDeleteReceipt = (receiptId: string) => {
-    if (confirm('Delete receipt record?')) {
+    if (confirm('Delete receipt record? This will reverse the linked invoice payment.')) {
+      const receipt = receipts.find((r) => r.id === receiptId);
       setReceipts(receipts.filter((r) => r.id !== receiptId));
+
+      // Reverse the invoice paid amount
+      if (receipt && receipt.invoiceNo) {
+        const updatedInvoices = invoices.map((inv) => {
+          if (inv.invoiceNo === receipt.invoiceNo || inv.id === receipt.invoiceNo) {
+            const newPaid = Math.max(0, (inv.paidAmount || 0) - receipt.amount);
+            const newBalance = Math.max(0, inv.totalAmount - newPaid);
+            let newStatus: Invoice['status'] = 'pending';
+            if (newPaid >= inv.totalAmount) newStatus = 'paid';
+            else if (newPaid > 0) newStatus = 'partial';
+            return { ...inv, paidAmount: newPaid, balanceDue: newBalance, status: newStatus };
+          }
+          return inv;
+        });
+        setInvoices(updatedInvoices);
+      }
+
+      // Also clean up any legacy auto-created transactions linked to this receipt
+      setTransactions((prev) => prev.filter((t) => t.receiptId !== receiptId));
+
       showToast('Receipt record deleted.', 'info');
     }
   };
 
-  // Transaction Handlers
+  // Transaction Handlers — for MANUAL entries only (no receiptId)
   const handleSaveTransaction = (txData: Partial<Transaction>) => {
     setTransactions([txData as Transaction, ...transactions]);
     showToast('Transaction recorded into ledger.');
@@ -288,6 +327,12 @@ export default function App() {
     if (data.invoices) setInvoices(data.invoices);
     if (data.receipts) setReceipts(data.receipts);
     if (data.transactions) setTransactions(data.transactions);
+    // Re-initialize counters from imported data
+    initCounters(
+      data.quotations || quotations,
+      data.invoices || invoices,
+      data.receipts || receipts
+    );
     showToast('Full system backup imported successfully!');
   };
 
@@ -300,6 +345,9 @@ export default function App() {
     setInvoices(Storage.getInvoices());
     setReceipts(Storage.getReceipts());
     setTransactions(Storage.getTransactions());
+    // Clear and re-init counters
+    Object.keys(docCounters).forEach((k) => delete docCounters[k]);
+    initCounters(Storage.getQuotations(), Storage.getInvoices(), Storage.getReceipts());
     showToast('Data reset to factory seed values.', 'info');
   };
 
@@ -329,7 +377,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Main App Navigation Header */}
       <Header
         currentUser={currentUser}
         companySettings={companySettings}
@@ -339,7 +386,6 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      {/* Main View Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {activeDeptId === 'all' ? (
           <ExecutiveDashboard
@@ -352,10 +398,12 @@ export default function App() {
             onSelectDepartment={handleSelectDepartment}
             onOpenCreateInvoice={() => {
               setEditingInvoice(null);
+              setSuggestedInvNo(getNextDocNo('TDQS-INV'));
               setIsInvoiceModalOpen(true);
             }}
             onOpenCreateQuotation={() => {
               setEditingQuotation(null);
+              setSuggestedQteNo(getNextDocNo('TDQS-QTE'));
               setIsQuotationModalOpen(true);
             }}
             onOpenCreateExpense={() => setIsTransactionModalOpen(true)}
@@ -386,10 +434,12 @@ export default function App() {
             onDeleteVendor={handleDeleteVendor}
             onOpenCreateQuotation={() => {
               setEditingQuotation(null);
+              setSuggestedQteNo(getNextDocNo('TDQS-QTE'));
               setIsQuotationModalOpen(true);
             }}
             onOpenEditQuotation={(q) => {
               setEditingQuotation(q);
+              setSuggestedQteNo(q.quotationNo);
               setIsQuotationModalOpen(true);
             }}
             onDeleteQuotation={handleDeleteQuotation}
@@ -401,10 +451,12 @@ export default function App() {
             }}
             onOpenCreateInvoice={() => {
               setEditingInvoice(null);
+              setSuggestedInvNo(getNextDocNo('TDQS-INV'));
               setIsInvoiceModalOpen(true);
             }}
             onOpenEditInvoice={(inv) => {
               setEditingInvoice(inv);
+              setSuggestedInvNo(inv.invoiceNo);
               setIsInvoiceModalOpen(true);
             }}
             onDeleteInvoice={handleDeleteInvoice}
@@ -415,10 +467,12 @@ export default function App() {
             }}
             onRecordPayment={(inv) => {
               setReceiptInvoice(inv);
+              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT'));
               setIsReceiptModalOpen(true);
             }}
             onOpenCreateReceipt={() => {
               setReceiptInvoice(null);
+              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT'));
               setIsReceiptModalOpen(true);
             }}
             onDeleteReceipt={handleDeleteReceipt}
@@ -446,6 +500,8 @@ export default function App() {
         initialData={editingQuotation}
         defaultDeptId={activeDeptId}
         companySettings={companySettings}
+        vendors={contextVendors}
+        suggestedNo={suggestedQteNo}
       />
 
       <InvoiceModal
@@ -455,6 +511,8 @@ export default function App() {
         initialData={editingInvoice}
         defaultDeptId={activeDeptId}
         companySettings={companySettings}
+        vendors={contextVendors}
+        suggestedNo={suggestedInvNo}
       />
 
       <ReceiptModal
@@ -464,6 +522,8 @@ export default function App() {
         defaultDeptId={activeDeptId}
         initialInvoice={receiptInvoice}
         companySettings={companySettings}
+        vendors={contextVendors}
+        suggestedNo={suggestedRcptNo}
       />
 
       <TransactionModal
@@ -472,6 +532,7 @@ export default function App() {
         onSave={handleSaveTransaction}
         defaultDeptId={activeDeptId}
         companySettings={companySettings}
+        vendors={contextVendors}
       />
 
       <AdminSettingsModal
