@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Quotation, DepartmentId, LineItem, QuotationStatus, CompanySettings } from '../../types';
+import { Quotation, DepartmentId, LineItem, QuotationStatus, CompanySettings, VendorContractor } from '../../types';
 import { DEPARTMENTS } from '../../data/initialData';
 import { formatCurrency } from '../../utils/export';
-import { X, FileText, Plus, Trash2, Calculator } from 'lucide-react';
+import { X, FileText, Plus, Trash2 } from 'lucide-react';
+
+const UNIT_OPTIONS = ['Lump Sum', 'Sheet', 'Ton', 'Package', 'Other'];
+const VALIDITY_OPTIONS = [7, 15, 30];
 
 interface QuotationModalProps {
   isOpen: boolean;
@@ -11,6 +14,8 @@ interface QuotationModalProps {
   initialData?: Quotation | null;
   defaultDeptId?: DepartmentId;
   companySettings: CompanySettings;
+  vendors?: VendorContractor[];
+  suggestedNo?: string;
 }
 
 export const QuotationModal: React.FC<QuotationModalProps> = ({
@@ -20,30 +25,37 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
   initialData,
   defaultDeptId = 'design',
   companySettings,
+  vendors = [],
+  suggestedNo = '',
 }) => {
   const [deptId, setDeptId] = useState<DepartmentId>(defaultDeptId === 'all' ? 'design' : defaultDeptId);
   const [quotationNo, setQuotationNo] = useState('');
+  const [clientSource, setClientSource] = useState<'vendor' | 'custom'>('custom');
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [date, setDate] = useState('');
+  const [validityDays, setValidityDays] = useState<number>(30);
   const [validUntil, setValidUntil] = useState('');
   const [status, setStatus] = useState<QuotationStatus>('draft');
   const [taxRate, setTaxRate] = useState<number>(companySettings.defaultTaxRate || 5);
   const [discount, setDiscount] = useState<number>(0);
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
+  const [customUnit, setCustomUnit] = useState('');
 
   const [items, setItems] = useState<LineItem[]>([
-    {
-      id: 'item_1',
-      description: 'Structural / Rebar Detailing Engineering Services',
-      quantity: 1,
-      unit: 'Lump Sum',
-      unitPrice: 5000,
-      amount: 5000,
-    },
+    { id: 'item_1', description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
   ]);
+
+  // Compute validUntil from date + validityDays
+  useEffect(() => {
+    if (date) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + validityDays);
+      setValidUntil(d.toISOString().slice(0, 10));
+    }
+  }, [date, validityDays]);
 
   useEffect(() => {
     if (initialData) {
@@ -54,50 +66,57 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
       setProjectTitle(initialData.projectTitle);
       setDate(initialData.date);
       setValidUntil(initialData.validUntil);
+      // Infer validity days from date diff
+      if (initialData.date && initialData.validUntil) {
+        const diff = Math.round((new Date(initialData.validUntil).getTime() - new Date(initialData.date).getTime()) / (1000 * 60 * 60 * 24));
+        setValidityDays(VALIDITY_OPTIONS.includes(diff) ? diff : 30);
+      }
       setStatus(initialData.status);
       setTaxRate(initialData.taxRate);
       setDiscount(initialData.discount);
       setNotes(initialData.notes || '');
       setTerms(initialData.terms || '');
       setItems(initialData.items && initialData.items.length > 0 ? initialData.items : []);
+      // Check if client matches a vendor
+      const match = vendors.find((v) => v.name === initialData.clientName);
+      setClientSource(match ? 'vendor' : 'custom');
     } else {
       const selectedDept = defaultDeptId === 'all' ? 'design' : defaultDeptId;
       setDeptId(selectedDept);
-      setQuotationNo(`EST-${selectedDept.toUpperCase()}-2026-${Math.floor(100 + Math.random() * 900)}`);
+      setQuotationNo(suggestedNo || '');
       setClientName('');
       setClientEmail('');
       setProjectTitle('');
       setDate(new Date().toISOString().slice(0, 10));
-
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + 30);
-      setValidUntil(expiry.toISOString().slice(0, 10));
-
+      setValidityDays(30);
       setStatus('draft');
       setTaxRate(companySettings.defaultTaxRate || 5);
       setDiscount(0);
       setNotes('Thank you for requesting an estimate with TDQS Engineering.');
       setTerms('Validity: 30 days from date of estimate. 50% advance upon contract signing.');
+      setClientSource('custom');
       setItems([
-        {
-          id: `li_${Date.now()}`,
-          description: 'Engineering Scope & BOQ Estimation Package',
-          quantity: 1,
-          unit: 'Package',
-          unitPrice: 8500,
-          amount: 8500,
-        },
+        { id: `li_${Date.now()}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
       ]);
     }
-  }, [initialData, defaultDeptId, isOpen, companySettings]);
+  }, [initialData, defaultDeptId, isOpen, companySettings, suggestedNo, vendors]);
 
   if (!isOpen) return null;
+
+  const handleVendorSelect = (vendorName: string) => {
+    const v = vendors.find((ven) => ven.name === vendorName);
+    setClientName(vendorName);
+    if (v) setClientEmail(v.email);
+  };
 
   const handleItemChange = (index: number, field: keyof LineItem, val: any) => {
     const updated = [...items];
     const item = { ...updated[index], [field]: val };
     if (field === 'quantity' || field === 'unitPrice') {
       item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
+    }
+    if (field === 'unit' && val !== 'Other') {
+      setCustomUnit('');
     }
     updated[index] = item;
     setItems(updated);
@@ -106,14 +125,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
   const addItemRow = () => {
     setItems([
       ...items,
-      {
-        id: `li_${Date.now()}_${items.length}`,
-        description: '',
-        quantity: 1,
-        unit: 'Units',
-        unitPrice: 0,
-        amount: 0,
-      },
+      { id: `li_${Date.now()}_${items.length}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
     ]);
   };
 
@@ -170,37 +182,17 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Department</label>
-              <select
-                value={deptId}
-                onChange={(e) => setDeptId(e.target.value as DepartmentId)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              >
-                {DEPARTMENTS.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
-                ))}
+              <select value={deptId} onChange={(e) => setDeptId(e.target.value as DepartmentId)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
+                {DEPARTMENTS.map((d) => (<option key={d.id} value={d.id}>{d.name}</option>))}
               </select>
             </div>
-
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Estimate Number</label>
-              <input
-                type="text"
-                required
-                value={quotationNo}
-                onChange={(e) => setQuotationNo(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white font-mono"
-              />
+              <label className="block text-slate-400 font-semibold mb-1">Quotation Number</label>
+              <input type="text" required value={quotationNo} onChange={(e) => setQuotationNo(e.target.value)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white font-mono" />
             </div>
-
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as QuotationStatus)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              >
+              <select value={status} onChange={(e) => setStatus(e.target.value as QuotationStatus)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
                 <option value="draft">Draft</option>
                 <option value="sent">Sent</option>
                 <option value="approved">Approved</option>
@@ -209,134 +201,89 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             </div>
           </div>
 
+          {/* Client Name: Vendor Dropdown + Custom option */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Client / Company Name *</label>
-              <input
-                type="text"
-                required
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="e.g. Skyline Construction Group"
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              />
+              <select
+                value={clientSource}
+                onChange={(e) => {
+                  setClientSource(e.target.value as 'vendor' | 'custom');
+                  if (e.target.value === 'custom') { setClientName(''); setClientEmail(''); }
+                }}
+                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white mb-2"
+              >
+                <option value="custom">-- Type Custom Name --</option>
+                <option value="vendor">-- Select from Vendors/Contractors --</option>
+              </select>
+              {clientSource === 'vendor' ? (
+                <select value={clientName} onChange={(e) => handleVendorSelect(e.target.value)} required className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
+                  <option value="">Choose vendor...</option>
+                  {vendors.map((v) => (<option key={v.id} value={v.name}>{v.name} ({v.code})</option>))}
+                </select>
+              ) : (
+                <input type="text" required value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="e.g. Skyline Construction Group" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
+              )}
             </div>
-
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Client Email</label>
-              <input
-                type="email"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                placeholder="billing@client.com"
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              />
+              <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="billing@client.com" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white mt-7" />
             </div>
           </div>
 
           <div>
             <label className="block text-slate-400 font-semibold mb-1">Project Title / Scope *</label>
-            <input
-              type="text"
-              required
-              value={projectTitle}
-              onChange={(e) => setProjectTitle(e.target.value)}
-              placeholder="e.g. Commercial Tower B Rebar Detailing & BBS"
-              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-            />
+            <input type="text" required value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} placeholder="e.g. Commercial Tower B Rebar Detailing & BBS" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Quotation Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
             </div>
-
             <div>
-              <label className="block text-slate-400 font-semibold mb-1">Valid Until</label>
-              <input
-                type="date"
-                value={validUntil}
-                onChange={(e) => setValidUntil(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white"
-              />
+              <label className="block text-slate-400 font-semibold mb-1">Validity</label>
+              <div className="flex items-center space-x-2">
+                <select value={validityDays} onChange={(e) => setValidityDays(Number(e.target.value))} className="flex-1 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
+                  {VALIDITY_OPTIONS.map((d) => (<option key={d} value={d}>{d} Days</option>))}
+                </select>
+                <input type="text" readOnly value={validUntil} className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-400 font-mono" />
+              </div>
             </div>
           </div>
 
-          {/* Line Items Table */}
+          {/* Line Items */}
           <div className="pt-2">
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold uppercase text-indigo-400 tracking-wider">
-                Itemized Scope & Pricing
-              </label>
-              <button
-                type="button"
-                onClick={addItemRow}
-                className="flex items-center space-x-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-950/40 border border-indigo-800 px-2.5 py-1 rounded-lg"
-              >
+              <label className="block text-xs font-bold uppercase text-indigo-400 tracking-wider">Itemized Scope & Pricing</label>
+              <button type="button" onClick={addItemRow} className="flex items-center space-x-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-950/40 border border-indigo-800 px-2.5 py-1 rounded-lg">
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Item Line</span>
               </button>
             </div>
-
             <div className="space-y-2">
               {items.map((item, idx) => (
-                <div
-                  key={item.id || idx}
-                  className="grid grid-cols-12 gap-2 items-center bg-slate-950 border border-slate-800 p-2.5 rounded-xl"
-                >
+                <div key={item.id || idx} className="grid grid-cols-12 gap-2 items-center bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
                   <div className="col-span-5">
-                    <input
-                      type="text"
-                      placeholder="Item description"
-                      value={item.description}
-                      onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white"
-                    />
+                    <input type="text" placeholder="Item description" value={item.description} onChange={(e) => handleItemChange(idx, 'description', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white" />
                   </div>
-
+                  <div className="col-span-1">
+                    <input type="number" placeholder="Qty" min="1" value={item.quantity} onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-white text-right" />
+                  </div>
                   <div className="col-span-2">
-                    <input
-                      type="number"
-                      placeholder="Qty"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => handleItemChange(idx, 'quantity', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-right"
-                    />
+                    {item.unit === 'Other' ? (
+                      <input type="text" placeholder="Unit" value={customUnit} onChange={(e) => { setCustomUnit(e.target.value); handleItemChange(idx, 'unit', e.target.value); }} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-white" />
+                    ) : (
+                      <select value={item.unit} onChange={(e) => handleItemChange(idx, 'unit', e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-1.5 py-1.5 text-white">
+                        {UNIT_OPTIONS.map((u) => (<option key={u} value={u}>{u}</option>))}
+                      </select>
+                    )}
                   </div>
-
-                  <div className="col-span-2">
-                    <input
-                      type="text"
-                      placeholder="Unit (e.g. Tons)"
-                      value={item.unit}
-                      onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-white"
-                    />
+                  <div className="col-span-3">
+                    <input type="number" placeholder="Rate" value={item.unitPrice} onChange={(e) => handleItemChange(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-right font-mono" />
                   </div>
-
-                  <div className="col-span-2">
-                    <input
-                      type="number"
-                      placeholder="Rate"
-                      value={item.unitPrice}
-                      onChange={(e) => handleItemChange(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-white text-right font-mono"
-                    />
-                  </div>
-
                   <div className="col-span-1 text-center">
-                    <button
-                      type="button"
-                      onClick={() => removeItemRow(idx)}
-                      className="text-slate-500 hover:text-rose-400 transition-colors p-1"
-                    >
+                    <button type="button" onClick={() => removeItemRow(idx)} className="text-slate-500 hover:text-rose-400 transition-colors p-1">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
@@ -345,39 +292,26 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             </div>
           </div>
 
-          {/* Subtotal & Calculations Box */}
+          {/* Totals */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
             <div className="flex justify-between items-center text-xs">
               <span className="text-slate-400">Subtotal:</span>
               <span className="font-mono text-white font-bold">{formatCurrency(subtotal, companySettings)}</span>
             </div>
-
             <div className="flex justify-between items-center text-xs">
               <div className="flex items-center space-x-2">
                 <span className="text-slate-400">Tax Rate (%):</span>
-                <input
-                  type="number"
-                  value={taxRate}
-                  onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                  className="w-16 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono"
-                />
+                <input type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="w-16 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono" />
               </div>
               <span className="font-mono text-slate-300">+{formatCurrency(taxAmount, companySettings)}</span>
             </div>
-
             <div className="flex justify-between items-center text-xs">
               <div className="flex items-center space-x-2">
                 <span className="text-slate-400">Discount ({companySettings.currencySymbol}):</span>
-                <input
-                  type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                  className="w-20 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono text-rose-400"
-                />
+                <input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-20 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono text-rose-400" />
               </div>
               <span className="font-mono text-rose-400">-{formatCurrency(discount, companySettings)}</span>
             </div>
-
             <div className="flex justify-between items-center text-sm font-bold pt-2 border-t border-slate-800 text-white">
               <span>Total Quotation Amount:</span>
               <span className="text-emerald-400 text-base">{formatCurrency(totalAmount, companySettings)}</span>
@@ -385,19 +319,8 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
           </div>
 
           <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md"
-            >
-              {initialData ? 'Update Estimate' : 'Save Estimate'}
-            </button>
+            <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancel</button>
+            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update Estimate' : 'Save Estimate'}</button>
           </div>
         </form>
       </div>
