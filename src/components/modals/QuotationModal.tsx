@@ -19,14 +19,8 @@ interface QuotationModalProps {
 }
 
 export const QuotationModal: React.FC<QuotationModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  initialData,
-  defaultDeptId = 'design',
-  companySettings,
-  vendors = [],
-  suggestedNo = '',
+  isOpen, onClose, onSave, initialData, defaultDeptId = 'design',
+  companySettings, vendors = [], suggestedNo = '',
 }) => {
   const [deptId, setDeptId] = useState<DepartmentId>(defaultDeptId === 'all' ? 'design' : defaultDeptId);
   const [quotationNo, setQuotationNo] = useState('');
@@ -38,8 +32,6 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
   const [validityDays, setValidityDays] = useState<number>(30);
   const [validUntil, setValidUntil] = useState('');
   const [status, setStatus] = useState<QuotationStatus>('draft');
-  const [taxRate, setTaxRate] = useState<number>(companySettings.defaultTaxRate || 5);
-  const [discount, setDiscount] = useState<number>(0);
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
   const [customUnit, setCustomUnit] = useState('');
@@ -48,7 +40,9 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
     { id: 'item_1', description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
   ]);
 
-  // Compute validUntil from date + validityDays
+  // Tax locked from admin settings
+  const taxRate = companySettings.defaultTaxRate || 0;
+
   useEffect(() => {
     if (date) {
       const d = new Date(date);
@@ -66,40 +60,29 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
       setProjectTitle(initialData.projectTitle);
       setDate(initialData.date);
       setValidUntil(initialData.validUntil);
-      // Infer validity days from date diff
       if (initialData.date && initialData.validUntil) {
         const diff = Math.round((new Date(initialData.validUntil).getTime() - new Date(initialData.date).getTime()) / (1000 * 60 * 60 * 24));
         setValidityDays(VALIDITY_OPTIONS.includes(diff) ? diff : 30);
       }
       setStatus(initialData.status);
-      setTaxRate(initialData.taxRate);
-      setDiscount(initialData.discount);
       setNotes(initialData.notes || '');
       setTerms(initialData.terms || '');
       setItems(initialData.items && initialData.items.length > 0 ? initialData.items : []);
-      // Check if client matches a vendor
-      const match = vendors.find((v) => v.name === initialData.clientName);
-      setClientSource(match ? 'vendor' : 'custom');
+      setClientSource(vendors.find((v) => v.name === initialData.clientName) ? 'vendor' : 'custom');
     } else {
       const selectedDept = defaultDeptId === 'all' ? 'design' : defaultDeptId;
       setDeptId(selectedDept);
       setQuotationNo(suggestedNo || '');
-      setClientName('');
-      setClientEmail('');
-      setProjectTitle('');
+      setClientName(''); setClientEmail(''); setProjectTitle('');
       setDate(new Date().toISOString().slice(0, 10));
       setValidityDays(30);
       setStatus('draft');
-      setTaxRate(companySettings.defaultTaxRate || 5);
-      setDiscount(0);
       setNotes('Thank you for requesting an estimate with TDQS Engineering.');
-      setTerms('Validity: 30 days from date of estimate. 50% advance upon contract signing.');
+      setTerms('Validity as selected above. 50% advance upon contract signing.');
       setClientSource('custom');
-      setItems([
-        { id: `li_${Date.now()}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
-      ]);
+      setItems([{ id: `li_${Date.now()}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 }]);
     }
-  }, [initialData, defaultDeptId, isOpen, companySettings, suggestedNo, vendors]);
+  }, [initialData, defaultDeptId, isOpen, suggestedNo, vendors]);
 
   if (!isOpen) return null;
 
@@ -115,18 +98,13 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
     if (field === 'quantity' || field === 'unitPrice') {
       item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
     }
-    if (field === 'unit' && val !== 'Other') {
-      setCustomUnit('');
-    }
+    if (field === 'unit' && val !== 'Other') setCustomUnit('');
     updated[index] = item;
     setItems(updated);
   };
 
   const addItemRow = () => {
-    setItems([
-      ...items,
-      { id: `li_${Date.now()}_${items.length}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
-    ]);
+    setItems([...items, { id: `li_${Date.now()}_${items.length}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 }]);
   };
 
   const removeItemRow = (index: number) => {
@@ -135,31 +113,16 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
   };
 
   const subtotal = items.reduce((acc, item) => acc + (item.amount || 0), 0);
-  const taxAmount = (subtotal * (taxRate || 0)) / 100;
-  const totalAmount = Math.max(0, subtotal + taxAmount - (discount || 0));
+  const taxAmount = (subtotal * taxRate) / 100;
+  const totalAmount = Math.max(0, subtotal + taxAmount);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectTitle.trim() || !clientName.trim()) return;
-
     onSave({
       id: initialData ? initialData.id : `q_${Date.now()}`,
-      quotationNo,
-      deptId,
-      clientName,
-      clientEmail,
-      projectTitle,
-      date,
-      validUntil,
-      status,
-      items,
-      subtotal,
-      taxRate,
-      taxAmount,
-      discount,
-      totalAmount,
-      notes,
-      terms,
+      quotationNo, deptId, clientName, clientEmail, projectTitle, date, validUntil, status,
+      items, subtotal, taxRate, taxAmount, discount: 0, totalAmount, notes, terms,
       createdAt: initialData ? initialData.createdAt : new Date().toISOString().slice(0, 10),
     });
     onClose();
@@ -171,11 +134,9 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <h3 className="text-base font-bold text-white flex items-center space-x-2">
             <FileText className="w-5 h-5 text-amber-400" />
-            <span>{initialData ? 'Edit Quotation / Estimate' : 'Create Quotation / Estimate'}</span>
+            <span>{initialData ? 'Edit Quotation' : 'Create Quotation'}</span>
           </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
-            <X className="w-5 h-5" />
-          </button>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4 text-xs">
@@ -193,28 +154,16 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Status</label>
               <select value={status} onChange={(e) => setStatus(e.target.value as QuotationStatus)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
-                <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                <option value="draft">Draft</option><option value="sent">Sent</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
               </select>
             </div>
           </div>
 
-          {/* Client Name: Vendor Dropdown + Custom option */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Client / Company Name *</label>
-              <select
-                value={clientSource}
-                onChange={(e) => {
-                  setClientSource(e.target.value as 'vendor' | 'custom');
-                  if (e.target.value === 'custom') { setClientName(''); setClientEmail(''); }
-                }}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white mb-2"
-              >
-                <option value="custom">-- Type Custom Name --</option>
-                <option value="vendor">-- Select from Vendors/Contractors --</option>
+              <select value={clientSource} onChange={(e) => { setClientSource(e.target.value as 'vendor' | 'custom'); if (e.target.value === 'custom') { setClientName(''); setClientEmail(''); } }} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white mb-2">
+                <option value="custom">-- Type Custom Name --</option><option value="vendor">-- Select from Vendors/Contractors --</option>
               </select>
               {clientSource === 'vendor' ? (
                 <select value={clientName} onChange={(e) => handleVendorSelect(e.target.value)} required className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
@@ -233,7 +182,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
           <div>
             <label className="block text-slate-400 font-semibold mb-1">Project Title / Scope *</label>
-            <input type="text" required value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} placeholder="e.g. Commercial Tower B Rebar Detailing & BBS" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
+            <input type="text" required value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} placeholder="e.g. Commercial Tower B Rebar Detailing" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -257,8 +206,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-bold uppercase text-indigo-400 tracking-wider">Itemized Scope & Pricing</label>
               <button type="button" onClick={addItemRow} className="flex items-center space-x-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-950/40 border border-indigo-800 px-2.5 py-1 rounded-lg">
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Item Line</span>
+                <Plus className="w-3.5 h-3.5" /><span>Add Item</span>
               </button>
             </div>
             <div className="space-y-2">
@@ -283,34 +231,22 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
                     <input type="number" placeholder="Rate" value={item.unitPrice} onChange={(e) => handleItemChange(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-right font-mono" />
                   </div>
                   <div className="col-span-1 text-center">
-                    <button type="button" onClick={() => removeItemRow(idx)} className="text-slate-500 hover:text-rose-400 transition-colors p-1">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <button type="button" onClick={() => removeItemRow(idx)} className="text-slate-500 hover:text-rose-400 transition-colors p-1"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Totals */}
+          {/* Totals — no discount */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
             <div className="flex justify-between items-center text-xs">
               <span className="text-slate-400">Subtotal:</span>
               <span className="font-mono text-white font-bold">{formatCurrency(subtotal, companySettings)}</span>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="text-slate-400">Tax Rate (%):</span>
-                <input type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="w-16 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono" />
-              </div>
+              <span className="text-slate-400">Tax ({taxRate}%):</span>
               <span className="font-mono text-slate-300">+{formatCurrency(taxAmount, companySettings)}</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="text-slate-400">Discount ({companySettings.currencySymbol}):</span>
-                <input type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-20 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono text-rose-400" />
-              </div>
-              <span className="font-mono text-rose-400">-{formatCurrency(discount, companySettings)}</span>
             </div>
             <div className="flex justify-between items-center text-sm font-bold pt-2 border-t border-slate-800 text-white">
               <span>Total Quotation Amount:</span>
@@ -320,7 +256,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
           <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancel</button>
-            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update Estimate' : 'Save Estimate'}</button>
+            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update' : 'Save Quotation'}</button>
           </div>
         </form>
       </div>
