@@ -95,10 +95,7 @@ textarea:focus {
     background: white !important;
   }
 
-  /* Hide absolutely everything first */
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     visibility: hidden !important;
     overflow: visible !important;
     height: auto !important;
@@ -106,13 +103,10 @@ textarea:focus {
     aspect-ratio: auto !important;
   }
 
-  /* Then un-hide ONLY the print area and its children */
-  .a4-print-area,
-  .a4-print-area * {
+  .a4-print-area, .a4-print-area * {
     visibility: visible !important;
   }
 
-  /* Strip the preview styling so it prints as clean A4 */
   .a4-print-area {
     width: 100% !important;
     max-width: 100% !important;
@@ -125,7 +119,23 @@ textarea:focus {
     page-break-inside: avoid;
   }
 
-  /* Force colors to actually print */
+  /* Pin disclaimer to bottom of EVERY printed page.
+     On pages full of content the white bg covers text beneath it.
+     On the last page it sits naturally after content ends. */
+  .print-disclaimer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    text-align: center !important;
+    background: white !important;
+    padding-top: 8mm !important;
+    padding-bottom: 5mm !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
