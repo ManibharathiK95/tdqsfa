@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   DepartmentId,
   User,
@@ -21,46 +21,49 @@ import { ReceiptModal } from './components/modals/ReceiptModal';
 import { TransactionModal } from './components/modals/TransactionModal';
 import { AdminSettingsModal } from './components/modals/AdminSettingsModal';
 import { ViewInvoiceModal } from './components/modals/ViewInvoiceModal';
+import { ViewReceiptModal } from './components/modals/ViewReceiptModal';
 import { CheckCircle } from 'lucide-react';
 
-// ─── In-memory sequential number counter ───
-const docCounters: Record<string, number> = {};
-
-function scanDocNo(docNo: string, prefix: string) {
-  if (!docNo || !docNo.startsWith(prefix)) return;
-  const parts = docNo.split('-');
-  // Format: TDQS-QTE-yymm-00x → parts: ['TDQS','QTE','yymm','00x']
-  if (parts.length === 4) {
-    const key = `${parts[0]}-${parts[1]}-${parts[2]}`;
-    const seq = parseInt(parts[3], 10);
-    if (!isNaN(seq)) {
-      docCounters[key] = Math.max(docCounters[key] || 0, seq);
-    }
-  }
-}
-
-function initCounters(
-  quotations: Quotation[],
-  invoices: Invoice[],
-  receipts: Receipt[]
-) {
-  quotations.forEach((q) => scanDocNo(q.quotationNo, 'TDQS-QTE'));
-  invoices.forEach((i) => scanDocNo(i.invoiceNo, 'TDQS-INV'));
-  receipts.forEach((r) => scanDocNo(r.receiptNo, 'TDQS-RCPT'));
-}
-
-function getNextDocNo(prefix: string): string {
+// ─── Number Reuse Logic ───
+// Finds the smallest unused sequence number among finalized documents only.
+// Draft/pending/deleted numbers get reused.
+function getNextDocNo(
+  prefix: string,
+  existingDocs: Array<{ docNo: string; status: string }>,
+  finalizedStatuses: string[]
+): string {
   const now = new Date();
   const yymm =
     String(now.getFullYear()).slice(-2) +
     String(now.getMonth() + 1).padStart(2, '0');
-  const key = `${prefix}-${yymm}`;
-  docCounters[key] = (docCounters[key] || 0) + 1;
-  return `${prefix}-${yymm}-${String(docCounters[key]).padStart(3, '0')}`;
+  const keyPrefix = `${prefix}-${yymm}-`;
+  const usedNumbers = new Set<number>();
+
+  for (const doc of existingDocs) {
+    if (
+      doc.docNo &&
+      doc.docNo.startsWith(keyPrefix) &&
+      finalizedStatuses.includes(doc.status)
+    ) {
+      const parts = doc.docNo.split('-');
+      if (parts.length === 4) {
+        const seq = parseInt(parts[3], 10);
+        if (!isNaN(seq) && seq > 0) usedNumbers.add(seq);
+      }
+    }
+  }
+
+  let next = 1;
+  while (usedNumbers.has(next)) next++;
+  return `${prefix}-${yymm}-${String(next).padStart(3, '0')}`;
 }
 
+// Finalized statuses per document type
+const QTE_FINALIZED = ['sent', 'approved', 'rejected'];
+const INV_FINALIZED = ['sent', 'paid', 'partial', 'overdue'];
+const RCP_FINALIZED = ['cleared'];
+
 export default function App() {
-  // Persistence States
   const [users, setUsers] = useState<User[]>(() => Storage.getUsers());
   const [companySettings, setCompanySettings] = useState<CompanySettings>(() =>
     Storage.getCompanySettings()
@@ -71,12 +74,6 @@ export default function App() {
   const [receipts, setReceipts] = useState<Receipt[]>(() => Storage.getReceipts());
   const [transactions, setTransactions] = useState<Transaction[]>(() => Storage.getTransactions());
 
-  // Initialize counters from existing data on first load
-  useEffect(() => {
-    initCounters(quotations, invoices, receipts);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Current User Session
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const savedId = Storage.getCurrentUserId();
     if (savedId) {
@@ -86,10 +83,7 @@ export default function App() {
     return null;
   });
 
-  // Active View Department
   const [activeDeptId, setActiveDeptId] = useState<DepartmentId>('all');
-
-  // Notification Toast State
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'info' = 'success') => {
@@ -97,7 +91,6 @@ export default function App() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Modal Visibility States
   const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<VendorContractor | null>(null);
 
@@ -120,13 +113,15 @@ export default function App() {
   const [viewingDoc, setViewingDoc] = useState<Invoice | Quotation | null>(null);
   const [viewType, setViewType] = useState<'invoice' | 'quotation'>('invoice');
 
-  // Filter vendors for current department context
+  // ★ Receipt view modal state
+  const [isReceiptViewOpen, setIsReceiptViewOpen] = useState(false);
+  const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
+
   const contextVendors = useMemo(() => {
     if (activeDeptId === 'all') return vendors;
     return vendors.filter((v) => v.deptId === activeDeptId || v.status === 'active');
   }, [vendors, activeDeptId]);
 
-  // Sync to Storage on changes
   useEffect(() => { Storage.setUsers(users); }, [users]);
   useEffect(() => { Storage.setCompanySettings(companySettings); }, [companySettings]);
   useEffect(() => { Storage.setVendors(vendors); }, [vendors]);
@@ -135,7 +130,6 @@ export default function App() {
   useEffect(() => { Storage.setReceipts(receipts); }, [receipts]);
   useEffect(() => { Storage.setTransactions(transactions); }, [transactions]);
 
-  // Handle Login & Logout
   const handleLoginSuccess = (user: User) => {
     setCurrentUser(user);
     Storage.setCurrentUserId(user.id);
@@ -153,9 +147,7 @@ export default function App() {
     showToast('Logged out securely.', 'info');
   };
 
-  // ★ ADD THIS NEW HANDLER ★
   const handleSaveAll = () => {
-    // Force-write all current state to localStorage
     Storage.setUsers(users);
     Storage.setCompanySettings(companySettings);
     Storage.setVendors(vendors);
@@ -209,7 +201,7 @@ export default function App() {
   const handleConvertToInvoice = (q: Quotation) => {
     const newInvoice: Invoice = {
       id: `inv_conv_${Date.now()}`,
-      invoiceNo: getNextDocNo('TDQS-INV'),
+      invoiceNo: getNextDocNo('TDQS-INV', invoices, INV_FINALIZED),
       deptId: q.deptId,
       quotationId: q.id,
       clientName: q.clientName,
@@ -222,7 +214,7 @@ export default function App() {
       subtotal: q.subtotal,
       taxRate: q.taxRate,
       taxAmount: q.taxAmount,
-      discount: q.discount,
+      discount: 0,
       totalAmount: q.totalAmount,
       paidAmount: 0,
       balanceDue: q.totalAmount,
@@ -236,7 +228,6 @@ export default function App() {
 
   // Invoice Handlers
   const handleSaveInvoice = (invData: Partial<Invoice>) => {
-    // Guard: paidAmount must not exceed totalAmount
     const data = { ...invData };
     if (data.paidAmount && data.totalAmount && data.paidAmount > data.totalAmount) {
       data.paidAmount = data.totalAmount;
@@ -260,12 +251,11 @@ export default function App() {
     }
   };
 
-  // Receipt Handlers — FIXED: No longer auto-creates duplicate transactions
+  // Receipt Handlers
   const handleSaveReceipt = (recData: Partial<Receipt>) => {
     const newReceipt = recData as Receipt;
     setReceipts([newReceipt, ...receipts]);
 
-    // Update linked invoice paid amount
     if (newReceipt.invoiceNo) {
       const updatedInvoices = invoices.map((inv) => {
         if (inv.invoiceNo === newReceipt.invoiceNo || inv.id === newReceipt.invoiceNo) {
@@ -286,7 +276,6 @@ export default function App() {
       setInvoices(updatedInvoices);
     }
 
-    // NO auto-transaction creation — income/expense derives from receipts
     showToast(`Payment receipt ${newReceipt.receiptNo} recorded!`);
   };
 
@@ -295,7 +284,6 @@ export default function App() {
       const receipt = receipts.find((r) => r.id === receiptId);
       setReceipts(receipts.filter((r) => r.id !== receiptId));
 
-      // Reverse the invoice paid amount
       if (receipt && receipt.invoiceNo) {
         const updatedInvoices = invoices.map((inv) => {
           if (inv.invoiceNo === receipt.invoiceNo || inv.id === receipt.invoiceNo) {
@@ -311,14 +299,12 @@ export default function App() {
         setInvoices(updatedInvoices);
       }
 
-      // Also clean up any legacy auto-created transactions linked to this receipt
       setTransactions((prev) => prev.filter((t) => t.receiptId !== receiptId));
-
       showToast('Receipt record deleted.', 'info');
     }
   };
 
-  // Transaction Handlers — for MANUAL entries only (no receiptId)
+  // Transaction Handlers
   const handleSaveTransaction = (txData: Partial<Transaction>) => {
     setTransactions([txData as Transaction, ...transactions]);
     showToast('Transaction recorded into ledger.');
@@ -331,7 +317,12 @@ export default function App() {
     }
   };
 
-  // Full Backup Restore
+  // ★ View Receipt handler
+  const handleViewReceipt = (r: Receipt) => {
+    setViewingReceipt(r);
+    setIsReceiptViewOpen(true);
+  };
+
   const handleImportFullBackup = (data: any) => {
     if (data.users) setUsers(data.users);
     if (data.companySettings) setCompanySettings(data.companySettings);
@@ -340,12 +331,6 @@ export default function App() {
     if (data.invoices) setInvoices(data.invoices);
     if (data.receipts) setReceipts(data.receipts);
     if (data.transactions) setTransactions(data.transactions);
-    // Re-initialize counters from imported data
-    initCounters(
-      data.quotations || quotations,
-      data.invoices || invoices,
-      data.receipts || receipts
-    );
     showToast('Full system backup imported successfully!');
   };
 
@@ -358,13 +343,9 @@ export default function App() {
     setInvoices(Storage.getInvoices());
     setReceipts(Storage.getReceipts());
     setTransactions(Storage.getTransactions());
-    // Clear and re-init counters
-    Object.keys(docCounters).forEach((k) => delete docCounters[k]);
-    initCounters(Storage.getQuotations(), Storage.getInvoices(), Storage.getReceipts());
     showToast('Data reset to factory seed values.', 'info');
   };
 
-  // Department Selection Protection Handler
   const handleSelectDepartment = (id: DepartmentId) => {
     if (currentUser && currentUser.role !== 'admin' && currentUser.departmentId !== 'all') {
       if (id !== 'all' && id !== currentUser.departmentId) {
@@ -375,14 +356,12 @@ export default function App() {
     setActiveDeptId(id);
   };
 
-  // If user is not logged in, render PIN Keypad Screen
   if (!currentUser) {
     return <PinLogin users={users} onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
     <div className="min-h-screen app-background text-slate-100 font-sans selection:bg-emerald-600 selection:text-white">
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-20 right-6 z-50 flex items-center space-x-2.5 bg-zinc-900 border border-emerald-500/60 text-white px-4 py-2.5 rounded-xl shadow-2xl animate-fade-in text-xs font-bold">
           <CheckCircle className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
@@ -412,12 +391,12 @@ export default function App() {
             onSelectDepartment={handleSelectDepartment}
             onOpenCreateInvoice={() => {
               setEditingInvoice(null);
-              setSuggestedInvNo(getNextDocNo('TDQS-INV'));
+              setSuggestedInvNo(getNextDocNo('TDQS-INV', invoices, INV_FINALIZED));
               setIsInvoiceModalOpen(true);
             }}
             onOpenCreateQuotation={() => {
               setEditingQuotation(null);
-              setSuggestedQteNo(getNextDocNo('TDQS-QTE'));
+              setSuggestedQteNo(getNextDocNo('TDQS-QTE', quotations, QTE_FINALIZED));
               setIsQuotationModalOpen(true);
             }}
             onOpenCreateExpense={() => setIsTransactionModalOpen(true)}
@@ -437,59 +416,38 @@ export default function App() {
             invoices={invoices}
             receipts={receipts}
             transactions={transactions}
-            onOpenCreateVendor={() => {
-              setEditingVendor(null);
-              setIsVendorModalOpen(true);
-            }}
-            onOpenEditVendor={(v) => {
-              setEditingVendor(v);
-              setIsVendorModalOpen(true);
-            }}
+            onOpenCreateVendor={() => { setEditingVendor(null); setIsVendorModalOpen(true); }}
+            onOpenEditVendor={(v) => { setEditingVendor(v); setIsVendorModalOpen(true); }}
             onDeleteVendor={handleDeleteVendor}
             onOpenCreateQuotation={() => {
               setEditingQuotation(null);
-              setSuggestedQteNo(getNextDocNo('TDQS-QTE'));
+              setSuggestedQteNo(getNextDocNo('TDQS-QTE', quotations, QTE_FINALIZED));
               setIsQuotationModalOpen(true);
             }}
-            onOpenEditQuotation={(q) => {
-              setEditingQuotation(q);
-              setSuggestedQteNo(q.quotationNo);
-              setIsQuotationModalOpen(true);
-            }}
+            onOpenEditQuotation={(q) => { setEditingQuotation(q); setSuggestedQteNo(q.quotationNo); setIsQuotationModalOpen(true); }}
             onDeleteQuotation={handleDeleteQuotation}
             onConvertToInvoice={handleConvertToInvoice}
-            onViewQuotation={(q) => {
-              setViewingDoc(q);
-              setViewType('quotation');
-              setIsViewModalOpen(true);
-            }}
+            onViewQuotation={(q) => { setViewingDoc(q); setViewType('quotation'); setIsViewModalOpen(true); }}
             onOpenCreateInvoice={() => {
               setEditingInvoice(null);
-              setSuggestedInvNo(getNextDocNo('TDQS-INV'));
+              setSuggestedInvNo(getNextDocNo('TDQS-INV', invoices, INV_FINALIZED));
               setIsInvoiceModalOpen(true);
             }}
-            onOpenEditInvoice={(inv) => {
-              setEditingInvoice(inv);
-              setSuggestedInvNo(inv.invoiceNo);
-              setIsInvoiceModalOpen(true);
-            }}
+            onOpenEditInvoice={(inv) => { setEditingInvoice(inv); setSuggestedInvNo(inv.invoiceNo); setIsInvoiceModalOpen(true); }}
             onDeleteInvoice={handleDeleteInvoice}
-            onViewInvoice={(inv) => {
-              setViewingDoc(inv);
-              setViewType('invoice');
-              setIsViewModalOpen(true);
-            }}
+            onViewInvoice={(inv) => { setViewingDoc(inv); setViewType('invoice'); setIsViewModalOpen(true); }}
             onRecordPayment={(inv) => {
               setReceiptInvoice(inv);
-              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT'));
+              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT', receipts, RCP_FINALIZED));
               setIsReceiptModalOpen(true);
             }}
             onOpenCreateReceipt={() => {
               setReceiptInvoice(null);
-              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT'));
+              setSuggestedRcptNo(getNextDocNo('TDQS-RCPT', receipts, RCP_FINALIZED));
               setIsReceiptModalOpen(true);
             }}
             onDeleteReceipt={handleDeleteReceipt}
+            onViewReceipt={handleViewReceipt}
             onOpenCreateTransaction={() => setIsTransactionModalOpen(true)}
             onDeleteTransaction={handleDeleteTransaction}
             onImportFullBackup={handleImportFullBackup}
@@ -498,71 +456,20 @@ export default function App() {
         )}
       </main>
 
-      {/* Modals */}
-      <VendorModal
-        isOpen={isVendorModalOpen}
-        onClose={() => setIsVendorModalOpen(false)}
-        onSave={handleSaveVendor}
-        initialData={editingVendor}
-        defaultDeptId={activeDeptId}
-      />
+      <VendorModal isOpen={isVendorModalOpen} onClose={() => setIsVendorModalOpen(false)} onSave={handleSaveVendor} initialData={editingVendor} defaultDeptId={activeDeptId} />
+      <QuotationModal isOpen={isQuotationModalOpen} onClose={() => setIsQuotationModalOpen(false)} onSave={handleSaveQuotation} initialData={editingQuotation} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedQteNo} />
+      <InvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleSaveInvoice} initialData={editingInvoice} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedInvNo} />
+      <ReceiptModal isOpen={isReceiptModalOpen} onClose={() => setIsReceiptModalOpen(false)} onSave={handleSaveReceipt} defaultDeptId={activeDeptId} initialInvoice={receiptInvoice} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedRcptNo} />
+      <TransactionModal isOpen={isTransactionModalOpen} onClose={() => setIsTransactionModalOpen(false)} onSave={handleSaveTransaction} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} />
+      <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={(s) => setCompanySettings(s)} />
+      <ViewInvoiceModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} document={viewingDoc} type={viewType} companySettings={companySettings} />
 
-      <QuotationModal
-        isOpen={isQuotationModalOpen}
-        onClose={() => setIsQuotationModalOpen(false)}
-        onSave={handleSaveQuotation}
-        initialData={editingQuotation}
-        defaultDeptId={activeDeptId}
-        companySettings={companySettings}
-        vendors={contextVendors}
-        suggestedNo={suggestedQteNo}
-      />
-
-      <InvoiceModal
-        isOpen={isInvoiceModalOpen}
-        onClose={() => setIsInvoiceModalOpen(false)}
-        onSave={handleSaveInvoice}
-        initialData={editingInvoice}
-        defaultDeptId={activeDeptId}
-        companySettings={companySettings}
-        vendors={contextVendors}
-        suggestedNo={suggestedInvNo}
-      />
-
-      <ReceiptModal
-        isOpen={isReceiptModalOpen}
-        onClose={() => setIsReceiptModalOpen(false)}
-        onSave={handleSaveReceipt}
-        defaultDeptId={activeDeptId}
-        initialInvoice={receiptInvoice}
-        companySettings={companySettings}
-        vendors={contextVendors}
-        suggestedNo={suggestedRcptNo}
-      />
-
-      <TransactionModal
-        isOpen={isTransactionModalOpen}
-        onClose={() => setIsTransactionModalOpen(false)}
-        onSave={handleSaveTransaction}
-        defaultDeptId={activeDeptId}
-        companySettings={companySettings}
-        vendors={contextVendors}
-      />
-
-      <AdminSettingsModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        users={users}
-        onSaveUsers={(u) => setUsers(u)}
-        companySettings={companySettings}
-        onSaveCompanySettings={(s) => setCompanySettings(s)}
-      />
-
-      <ViewInvoiceModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        document={viewingDoc}
-        type={viewType}
+      {/* ★ Receipt View Modal ★ */}
+      <ViewReceiptModal
+        isOpen={isReceiptViewOpen}
+        onClose={() => setIsReceiptViewOpen(false)}
+        receipt={viewingReceipt}
+        invoices={invoices}
         companySettings={companySettings}
       />
     </div>
