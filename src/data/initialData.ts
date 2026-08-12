@@ -311,8 +311,8 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
     subtotal: 32950,
     taxRate: 5,
     taxAmount: 1647.5,
-    discount: 500,
-    totalAmount: 34097.5,
+    discount: 0,
+    totalAmount: 34597.5,
     notes: 'Drafted in Tekla Structures with 3D IFC export.',
     terms: 'Net 30 days upon invoice issuance.',
     createdAt: '2026-03-05',
@@ -348,8 +348,8 @@ export const INITIAL_QUOTATIONS: Quotation[] = [
     subtotal: 35500,
     taxRate: 5,
     taxAmount: 1775,
-    discount: 1000,
-    totalAmount: 36275,
+    discount: 0,
+    totalAmount: 37275,
     createdAt: '2026-03-10',
   },
   {
@@ -516,9 +516,9 @@ export const INITIAL_INVOICES: Invoice[] = [
     subtotal: 35500,
     taxRate: 5,
     taxAmount: 1775,
-    discount: 1000,
-    totalAmount: 36275,
-    paidAmount: 36275,
+    discount: 0,
+    totalAmount: 37275,
+    paidAmount: 37275,
     balanceDue: 0,
     notes: 'Full payment cleared via cheque.',
     paymentTerms: 'Paid in Full',
@@ -583,9 +583,9 @@ export const INITIAL_RECEIPTS: Receipt[] = [
     paymentDate: '2026-03-23',
     paymentMode: 'cheque',
     referenceNo: 'CHQ-882190',
-    amount: 36275,
+    amount: 37275,
     status: 'cleared',
-    notes: 'Cheque deposited to Chase account #9048.',
+    notes: 'Cheque deposited to bank account.',
     createdAt: '2026-03-23',
   },
   {
@@ -619,9 +619,7 @@ export const INITIAL_RECEIPTS: Receipt[] = [
   },
 ];
 
-// NOTE: Only MANUAL expense transactions here.
-// Income is derived from incoming receipts. Outgoing receipts + manual expenses = total expense.
-// Auto-created duplicates from receipts have been REMOVED to fix the duplication bug.
+// Only manual expense transactions — income derives from incoming receipts
 export const INITIAL_TRANSACTIONS: Transaction[] = [
   {
     id: 'tx_04',
