@@ -1,19 +1,77 @@
-@import "tailwindcss";
+/* ============================================
+   A4 Print Styles for Invoice / Receipt / Quotation
+   ============================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
 
-/* Import professional SaaS font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
-/* Global base styles */
-body {
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  /* Hide everything that is NOT the print area */
+  body > *:not(.fixed) {
+    display: none !important;
+  }
 
-/* Professional Dark Slate Background with subtle branding glow */
-.app-background {
-  background-color: #0B1120; /* Deep slate instead of harsh #000000 black */
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+  /* Show only the print area containers */
+  .fixed {
+    position: static !important;
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Hide modal chrome — buttons, close X, etc. */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* The actual A4 paper content */
+  .a4-print-area {
+    width: 100% !important;
+    max-width: 180mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: white !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .a4-print-area * {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Force backgrounds to print */
+  .bg-white, .bg-slate-50 {
+    background: white !important;
+  }
+
+  .bg-emerald-950, .bg-emerald-700, .bg-indigo-900 {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Remove scrollbars and overflow in print */
+  .overflow-y-auto, .overflow-x-auto {
+    overflow: visible !important;
+    max-height: none !important;
+  }
 }
