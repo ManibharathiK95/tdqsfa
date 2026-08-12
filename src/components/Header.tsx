@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Save,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -19,6 +20,7 @@ interface HeaderProps {
   onSelectDepartment: (deptId: DepartmentId) => void;
   onOpenAdminModal: () => void;
   onLogout: () => void;
+  onSaveAll: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectDepartment,
   onOpenAdminModal,
   onLogout,
+  onSaveAll,
 }) => {
   const getDeptIcon = (id: DepartmentId) => {
     switch (id) {
@@ -44,8 +47,6 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  // Restrict visible department tabs for non-admin users according to requirements:
-  // "important dash board shows same for all - but inside as per account user, only that department, no other department shown"
   const visibleDepartments = DEPARTMENTS.filter((dept) => {
     if (currentUser.role === 'admin' || currentUser.departmentId === 'all') {
       return true;
@@ -55,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-40 text-white shadow-lg">
-      {/* Top Bar: Company Branding + User Controls */}
+      {/* Top Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Company Title */}
@@ -77,8 +78,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right Action Controls */}
-          <div className="flex items-center space-x-3">
-            {/* Admin Settings Button */}
+          <div className="flex items-center space-x-2">
+            {/* ★ SAVE ALL BUTTON — visible to everyone ★ */}
+            <button
+              onClick={onSaveAll}
+              className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-sm shadow-emerald-950/40"
+              title="Save all data to local storage"
+            >
+              <Save className="w-4 h-4" />
+              <span className="hidden sm:inline">Save</span>
+            </button>
+
+            {/* Admin Settings — admins only */}
             {currentUser.role === 'admin' && (
               <button
                 onClick={onOpenAdminModal}
@@ -109,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Log Out / Lock Button */}
+            {/* Log Out */}
             <button
               onClick={onLogout}
               className="flex items-center space-x-1 px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-200 text-xs font-bold rounded-xl transition-all shadow-sm"
@@ -122,11 +133,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Main Department Tabs Bar */}
+      {/* Department Tabs Bar */}
       <div className="bg-black border-t border-zinc-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto py-2 scrollbar-none">
-            {/* Overall Executive Dashboard */}
             <button
               onClick={() => onSelectDepartment('all')}
               className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
@@ -139,10 +149,8 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Executive Dashboard (Overall)</span>
             </button>
 
-            {/* Department-Specific Tabs (Filtered for specific user) */}
             {visibleDepartments.map((dept) => {
               const isActive = activeDeptId === dept.id;
-
               return (
                 <button
                   key={dept.id}
