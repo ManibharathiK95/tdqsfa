@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* ===== Base App Styles ===== */
 html {
   scroll-behavior: smooth;
 }
@@ -11,21 +10,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== Custom Background ===== */
 .app-background {
   background-color: #09090b;
-  background-image: 
+  background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent),
     radial-gradient(ellipse 60% 40% at 80% 50%, rgba(99, 102, 241, 0.04), transparent);
 }
 
-/* ===== Selection Color ===== */
 ::selection {
   background-color: #059669;
   color: white;
 }
 
-/* ===== Scrollbar Hide Utility ===== */
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -34,7 +30,6 @@ body {
   display: none;
 }
 
-/* ===== Custom Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -51,22 +46,14 @@ body {
   background: #52525b;
 }
 
-/* ===== Fade In Animation ===== */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* ===== Line Clamp ===== */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -74,7 +61,6 @@ body {
   overflow: hidden;
 }
 
-/* ===== Number Input Arrows Hide ===== */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -84,67 +70,67 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* ===== Focus Ring ===== */
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
 }
 
-/* ============================================
-   A4 PRINT STYLES
-   Only activates on Ctrl+P / Cmd+P
-   ============================================ */
+/* ===== A4 Paper Look for Preview (normal screen) ===== */
+.a4-print-area {
+  background: white;
+  aspect-ratio: 210 / 297;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+/* ===== PRINT — only activates on Ctrl+P ===== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm;
+    margin: 10mm 12mm;
   }
-
-  html, body {
-    background: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  body > * {
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-
-  .print-hide,
-  header,
-  main {
-    display: none !important;
-  }
-
-  .fixed {
+  body > .fixed {
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
     position: static !important;
-    background: #fff !important;
+    background: none !important;
     border: none !important;
     box-shadow: none !important;
-    border-radius: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    overflow: visible !important;
   }
-
-  .a4-print-area {
+  body > .fixed > *:not(.a4-print-area) {
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+  body > .fixed > .a4-print-area {
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
     width: 100% !important;
-    max-width: 180mm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    background: #fff !important;
+    max-width: 100% !important;
+    aspect-ratio: auto !important;
+    max-height: none !important;
     border: none !important;
-    border-radius: 0 !important;
     box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
     page-break-inside: avoid;
   }
-
-  .a4-print-area * {
+  * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-
-  .bg-white,
-  .bg-slate-50 {
-    background: #fff !important;
   }
 }
