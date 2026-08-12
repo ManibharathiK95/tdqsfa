@@ -153,6 +153,19 @@ export default function App() {
     showToast('Logged out securely.', 'info');
   };
 
+  // ★ ADD THIS NEW HANDLER ★
+  const handleSaveAll = () => {
+    // Force-write all current state to localStorage
+    Storage.setUsers(users);
+    Storage.setCompanySettings(companySettings);
+    Storage.setVendors(vendors);
+    Storage.setQuotations(quotations);
+    Storage.setInvoices(invoices);
+    Storage.setReceipts(receipts);
+    Storage.setTransactions(transactions);
+    showToast('All data saved successfully!');
+  };
+
   // Vendor Handlers
   const handleSaveVendor = (vendorData: Partial<VendorContractor>) => {
     let updated: VendorContractor[];
@@ -384,6 +397,7 @@ export default function App() {
         onSelectDepartment={handleSelectDepartment}
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
         onLogout={handleLogout}
+        onSaveAll={handleSaveAll}
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
