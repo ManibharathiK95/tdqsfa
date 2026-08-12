@@ -261,8 +261,24 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-800 flex justify-end">
-              <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+              <span id="admin-save-hint" className="text-xs text-slate-500">Changes are saved to local storage.</span>
+              <button
+                type="submit"
+                onClick={() => {
+                  // Show inline "Saved!" feedback
+                  const hint = document.getElementById('admin-save-hint');
+                  if (hint) {
+                    hint.textContent = '✓ Saved!';
+                    hint.className = 'text-xs text-emerald-400 font-bold';
+                    setTimeout(() => {
+                      hint.textContent = 'Changes are saved to local storage.';
+                      hint.className = 'text-xs text-slate-500';
+                    }, 2500);
+                  }
+                }}
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-all"
+              >
                 Save Settings
               </button>
             </div>
