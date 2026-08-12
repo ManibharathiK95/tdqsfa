@@ -128,10 +128,25 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-xs font-bold uppercase text-slate-300">Current Users & Security PINs</label>
-                <button onClick={handleSaveAllUsers} className="flex items-center space-x-1 text-xs font-bold text-emerald-400 hover:underline">
+                <button
+                  onClick={() => {
+                    handleSaveAllUsers();
+                    const hint = document.getElementById('user-save-hint');
+                    if (hint) {
+                      hint.textContent = '✓ PINs Saved!';
+                      hint.className = 'text-xs text-emerald-400 font-bold';
+                      setTimeout(() => {
+                        hint.textContent = '';
+                        hint.className = 'text-xs text-slate-500';
+                      }, 2500);
+                    }
+                  }}
+                  className="flex items-center space-x-1 text-xs font-bold text-emerald-400 hover:underline"
+                >
                   <Save className="w-3.5 h-3.5" />
                   <span>Save PIN Updates</span>
                 </button>
+                <span id="user-save-hint" className="text-xs text-slate-500"></span>
               </div>
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                 {userList.map((u) => (
