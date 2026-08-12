@@ -56,6 +56,7 @@ interface DepartmentViewProps {
 
   onOpenCreateReceipt: () => void;
   onDeleteReceipt: (id: string) => void;
+  onViewReceipt: (r: Receipt) => void;
 
   onOpenCreateTransaction: () => void;
   onDeleteTransaction: (id: string) => void;
@@ -209,6 +210,18 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
           canEdit={canEdit}
           onOpenCreateReceipt={onOpenCreateReceipt}
           onDeleteReceipt={onDeleteReceipt}
+        />
+      )}
+
+      {activeSubTab === 'receipts' && (
+        <ReceiptsTab
+          deptId={deptId}
+          receipts={receipts}
+          companySettings={companySettings}
+          canEdit={canEdit}
+          onOpenCreateReceipt={onOpenCreateReceipt}
+          onDeleteReceipt={onDeleteReceipt}
+          onViewReceipt={onViewReceipt}
         />
       )}
 
