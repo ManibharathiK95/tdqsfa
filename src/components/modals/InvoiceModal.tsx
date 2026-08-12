@@ -19,14 +19,8 @@ interface InvoiceModalProps {
 }
 
 export const InvoiceModal: React.FC<InvoiceModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  initialData,
-  defaultDeptId = 'design',
-  companySettings,
-  vendors = [],
-  suggestedNo = '',
+  isOpen, onClose, onSave, initialData, defaultDeptId = 'design',
+  companySettings, vendors = [], suggestedNo = '',
 }) => {
   const [deptId, setDeptId] = useState<DepartmentId>(defaultDeptId === 'all' ? 'design' : defaultDeptId);
   const [invoiceNo, setInvoiceNo] = useState('');
@@ -38,8 +32,6 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   const [dueDateDays, setDueDateDays] = useState<number>(30);
   const [dueDate, setDueDate] = useState('');
   const [status, setStatus] = useState<InvoiceStatus>('pending');
-  const [taxRate, setTaxRate] = useState<number>(companySettings.defaultTaxRate || 5);
-  const [discount, setDiscount] = useState<number>(0);
   const [paidAmount, setPaidAmount] = useState<number>(0);
   const [notes, setNotes] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('');
@@ -49,7 +41,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     { id: 'item_inv_1', description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
   ]);
 
-  // Auto-calc due date from issue date + days
+  const taxRate = companySettings.defaultTaxRate || 0;
+
   useEffect(() => {
     if (issueDate) {
       const d = new Date(issueDate);
@@ -72,35 +65,25 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         setDueDateDays(DUE_DATE_OPTIONS.includes(diff) ? diff : 30);
       }
       setStatus(initialData.status);
-      setTaxRate(initialData.taxRate);
-      setDiscount(initialData.discount);
       setPaidAmount(initialData.paidAmount || 0);
       setNotes(initialData.notes || '');
       setPaymentTerms(initialData.paymentTerms || '');
       setItems(initialData.items && initialData.items.length > 0 ? initialData.items : []);
-      const match = vendors.find((v) => v.name === initialData.clientName);
-      setClientSource(match ? 'vendor' : 'custom');
+      setClientSource(vendors.find((v) => v.name === initialData.clientName) ? 'vendor' : 'custom');
     } else {
       const selectedDept = defaultDeptId === 'all' ? 'design' : defaultDeptId;
       setDeptId(selectedDept);
       setInvoiceNo(suggestedNo || '');
-      setClientName('');
-      setClientEmail('');
-      setProjectTitle('');
+      setClientName(''); setClientEmail(''); setProjectTitle('');
       setIssueDate(new Date().toISOString().slice(0, 10));
       setDueDateDays(30);
       setStatus('pending');
-      setTaxRate(companySettings.defaultTaxRate || 5);
-      setDiscount(0);
       setPaidAmount(0);
-      setNotes('Payment payable to TDQS Engineering & Cost Consultancy.');
-      setPaymentTerms('Net 30 Days. Late payments subject to 1.5% interest per month.');
+      setNotes('Payment payable to TDQS Design & QS Services FZE.');
       setClientSource('custom');
-      setItems([
-        { id: `li_inv_${Date.now()}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 },
-      ]);
+      setItems([{ id: `li_inv_${Date.now()}`, description: '', quantity: 1, unit: 'Lump Sum', unitPrice: 0, amount: 0 }]);
     }
-  }, [initialData, defaultDeptId, isOpen, companySettings, suggestedNo, vendors]);
+  }, [initialData, defaultDeptId, isOpen, suggestedNo, vendors]);
 
   if (!isOpen) return null;
 
@@ -131,41 +114,26 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   };
 
   const subtotal = items.reduce((acc, item) => acc + (item.amount || 0), 0);
-  const taxAmount = (subtotal * (taxRate || 0)) / 100;
-  const totalAmount = Math.max(0, subtotal + taxAmount - (discount || 0));
+  const taxAmount = (subtotal * taxRate) / 100;
+  const totalAmount = Math.max(0, subtotal + taxAmount);
   const balanceDue = Math.max(0, totalAmount - (paidAmount || 0));
-
   const hasBankDetails = !!(companySettings.bankName && companySettings.iban);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!projectTitle.trim() || !clientName.trim()) return;
-
     let computedStatus: InvoiceStatus = status;
     if (paidAmount >= totalAmount && totalAmount > 0) computedStatus = 'paid';
     else if (paidAmount > 0 && paidAmount < totalAmount) computedStatus = 'partial';
 
     onSave({
       id: initialData ? initialData.id : `inv_${Date.now()}`,
-      invoiceNo,
-      deptId,
-      quotationId: initialData?.quotationId,
-      clientName,
-      clientEmail,
-      projectTitle,
-      issueDate,
-      dueDate,
-      status: computedStatus,
-      items,
-      subtotal,
-      taxRate,
-      taxAmount,
-      discount,
-      totalAmount,
-      paidAmount: Math.min(paidAmount, totalAmount),
-      balanceDue,
-      notes,
-      paymentTerms,
+      invoiceNo, deptId, quotationId: initialData?.quotationId,
+      clientName, clientEmail, projectTitle, issueDate, dueDate,
+      status: computedStatus, items, subtotal, taxRate, taxAmount,
+      discount: 0, totalAmount,
+      paidAmount: Math.min(paidAmount, totalAmount), balanceDue,
+      notes, paymentTerms,
       createdAt: initialData ? initialData.createdAt : new Date().toISOString().slice(0, 10),
     });
     onClose();
@@ -177,7 +145,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <h3 className="text-base font-bold text-white flex items-center space-x-2">
             <CheckSquare className="w-5 h-5 text-indigo-400" />
-            <span>{initialData ? 'Edit Official Invoice' : 'Create Official Invoice'}</span>
+            <span>{initialData ? 'Edit Invoice' : 'Create Invoice'}</span>
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
         </div>
@@ -197,22 +165,16 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Status</label>
               <select value={status} onChange={(e) => setStatus(e.target.value as InvoiceStatus)} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-                <option value="partial">Partial</option>
-                <option value="overdue">Overdue</option>
-                <option value="draft">Draft</option>
+                <option value="pending">Pending</option><option value="paid">Paid</option><option value="partial">Partial</option><option value="overdue">Overdue</option><option value="draft">Draft</option>
               </select>
             </div>
           </div>
 
-          {/* Client: Vendor dropdown + custom */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-400 font-semibold mb-1">Client / Company Name *</label>
               <select value={clientSource} onChange={(e) => { setClientSource(e.target.value as 'vendor' | 'custom'); if (e.target.value === 'custom') { setClientName(''); setClientEmail(''); } }} className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white mb-2">
-                <option value="custom">-- Type Custom Name --</option>
-                <option value="vendor">-- Select from Vendors/Contractors --</option>
+                <option value="custom">-- Type Custom Name --</option><option value="vendor">-- Select from Vendors/Contractors --</option>
               </select>
               {clientSource === 'vendor' ? (
                 <select value={clientName} onChange={(e) => handleVendorSelect(e.target.value)} required className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white">
@@ -230,8 +192,8 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-slate-400 font-semibold mb-1">Project Title / Billing Description *</label>
-            <input type="text" required value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} placeholder="e.g. Overpass Bridge Structural Design - Milestone 1" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
+            <label className="block text-slate-400 font-semibold mb-1">Project Title *</label>
+            <input type="text" required value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} placeholder="e.g. Overpass Bridge Design - Milestone 1" className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-white" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -255,7 +217,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-bold uppercase text-indigo-400 tracking-wider">Invoice Line Items</label>
               <button type="button" onClick={addItemRow} className="flex items-center space-x-1 text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-950/40 border border-indigo-800 px-2.5 py-1 rounded-lg">
-                <Plus className="w-3.5 h-3.5" /><span>Add Item Line</span>
+                <Plus className="w-3.5 h-3.5" /><span>Add Item</span>
               </button>
             </div>
             <div className="space-y-2">
@@ -287,33 +249,22 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             </div>
           </div>
 
-          {/* Totals */}
+          {/* Totals — no discount, no paid/balance on this form */}
           <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-2">
             <div className="flex justify-between items-center text-xs">
               <span className="text-slate-400">Subtotal:</span>
               <span className="font-mono text-white font-bold">{formatCurrency(subtotal, companySettings)}</span>
             </div>
             <div className="flex justify-between items-center text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="text-slate-400">Tax Rate (%):</span>
-                <input type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} className="w-16 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono" />
-              </div>
+              <span className="text-slate-400">Tax ({taxRate}%):</span>
               <span className="font-mono text-slate-300">+{formatCurrency(taxAmount, companySettings)}</span>
             </div>
-            <div className="flex justify-between items-center text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="text-slate-400">Paid Amount ({companySettings.currencySymbol}):</span>
-                <input type="number" value={paidAmount} onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)} className="w-24 bg-slate-900 border border-slate-800 text-white rounded px-2 py-0.5 text-right font-mono text-emerald-400 font-bold" />
-              </div>
-              <span className="font-mono text-emerald-400 font-bold">-{formatCurrency(paidAmount, companySettings)}</span>
-            </div>
             <div className="flex justify-between items-center text-sm font-bold pt-2 border-t border-slate-800 text-white">
-              <span>Balance Due:</span>
-              <span className="text-amber-400 text-base">{formatCurrency(balanceDue, companySettings)}</span>
+              <span>Total Amount:</span>
+              <span className="text-emerald-400 text-base">{formatCurrency(totalAmount, companySettings)}</span>
             </div>
           </div>
 
-          {/* Bank Details — read-only from company profile */}
           {hasBankDetails && (
             <div className="bg-slate-950 border border-emerald-900/50 rounded-xl p-4 space-y-1.5">
               <p className="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Bank Details (for AED B2B Transfer)</p>
@@ -328,7 +279,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
           <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancel</button>
-            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update Invoice' : 'Save Invoice'}</button>
+            <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update' : 'Save Invoice'}</button>
           </div>
         </form>
       </div>
