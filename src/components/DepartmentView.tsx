@@ -9,13 +9,13 @@ import {
   Receipt,
   Transaction,
 } from '../types';
-import { DepartmentOverviewTab } from './DepartmentOverviewTab';
-import { VendorsContractorsTab } from './VendorsContractorsTab';
-import { QuotationsTab } from './QuotationsTab';
-import { InvoicesTab } from './InvoicesTab';
-import { ReceiptsTab } from './ReceiptsTab';
-import { IncomeExpensesTab } from './IncomeExpensesTab';
-import { ExportReportsTab } from './ExportReportsTab';
+import { DepartmentOverviewTab } from './subtabs/DepartmentOverviewTab';
+import { VendorsContractorsTab } from './subtabs/VendorsContractorsTab';
+import { QuotationsTab } from './subtabs/QuotationsTab';
+import { InvoicesTab } from './subtabs/InvoicesTab';
+import { ReceiptsTab } from './subtabs/ReceiptsTab';
+import { IncomeExpensesTab } from './subtabs/IncomeExpensesTab';
+import { ExportReportsTab } from './subtabs/ExportReportsTab';
 
 import {
   LayoutDashboard,
