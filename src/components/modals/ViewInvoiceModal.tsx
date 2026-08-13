@@ -51,7 +51,7 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
           </div>
         </div>
 
-        {/* A4 Paper */}
+        {/* A4 Paper — disclaimer is INSIDE here */}
         <div className="a4-print-area rounded-lg border border-zinc-200 shadow-lg mt-3 text-zinc-900 font-sans p-8 space-y-5">
 
           {/* Header */}
@@ -153,11 +153,11 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {isInvoice && <p>{inv!.paymentTerms}</p>}
             {!isInvoice && <p>{quot!.terms}</p>}
           </div>
-        </div>
 
-        {/* Disclaimer — sits at page bottom in print, at content end in preview */}
-        <div className="print-disclaimer border-t border-zinc-200 mt-4 pt-3 text-center text-zinc-500">
-          <p className="text-xs font-semibold italic text-slate-400">{disclaimer}</p>
+          {/* ★ Disclaimer — INSIDE the paper, at the very end ★ */}
+          <div className="border-t border-slate-300 pt-4 text-center">
+            <p className="text-xs font-semibold italic text-slate-400">{disclaimer}</p>
+          </div>
         </div>
       </div>
     </div>
