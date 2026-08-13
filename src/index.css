@@ -88,7 +88,7 @@ textarea:focus {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 7mm 7mm;
+    margin: 3.5mm 3.5mm;
   }
 
   html, body {
@@ -124,11 +124,11 @@ textarea:focus {
   /* Force larger fonts in print — overrides any preview sizing */
   .a4-print-area h1 { font-size: 32px !important; }
   .a4-print-area h2 { font-size: 28px !important; }
-  .a4-print-area table { font-size: 18px !important; }
-  .a4-print-area table th { font-size: 18px !important; }
-  .a4-print-area table td { font-size: 18px !important; padding: 16px 18px !important; }
-  .a4-print-area p { font-size: 18px !important; }
-  .a4-print-area .font-mono { font-size: 18px !important; }
+  .a4-print-area table { font-size: 22px !important; }
+  .a4-print-area table th { font-size: 22px !important; }
+  .a4-print-area table td { font-size: 22px !important; padding: 16px 18px !important; }
+  .a4-print-area p { font-size: 22px !important; }
+  .a4-print-area .font-mono { font-size: 22px !important; }
 
   * {
     -webkit-print-color-adjust: exact !important;
