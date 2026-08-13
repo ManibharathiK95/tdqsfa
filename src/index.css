@@ -110,7 +110,7 @@ textarea:focus {
   .a4-print-area {
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
+    margin: 10 !important;
     padding: 0 !important;
     background: white !important;
     border: none !important;
