@@ -100,7 +100,7 @@ textarea:focus {
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
-    aspect-ratio: auto !important;
+    aspect-ratio: 210 / 297 !important;
   }
 
   .a4-print-area, .a4-print-area * {
