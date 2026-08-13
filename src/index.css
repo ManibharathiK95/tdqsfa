@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -13,8 +13,16 @@ body {
 .app-background {
   background-color: #09090b;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(99, 102, 241, 0.04), transparent);
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(16, 185, 129, 0.08),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 50%,
+      rgba(99, 102, 241, 0.04),
+      transparent
+    );
 }
 
 ::selection {
@@ -22,10 +30,13 @@ body {
   color: white;
 }
 
+/* ===== Scrollbar ===== */
+
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -34,25 +45,40 @@ body {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #18181b;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #3f3f46;
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
 }
 
+/* ===== Animation ===== */
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* ===== Text Clamp ===== */
 
 .line-clamp-2 {
   display: -webkit-box;
@@ -61,14 +87,19 @@ body {
   overflow: hidden;
 }
 
+/* ===== Number Input ===== */
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* ===== Focus ===== */
 
 input:focus,
 select:focus,
@@ -76,63 +107,252 @@ textarea:focus {
   outline: none;
 }
 
-/* ===== A4 Paper Look for Preview (normal screen) ===== */
+/* =========================================================
+   A4 PAPER LOOK - NORMAL SCREEN
+   ========================================================= */
+
 .a4-print-area {
   background: white;
+
+  /* A4 ratio */
   aspect-ratio: 210 / 297;
+
+  /* Keep preview manageable on screen */
   max-height: 75vh;
+
   overflow-y: auto;
+
+  /* Prevent content from touching the paper edge */
+  padding: 10mm;
+
+  box-sizing: border-box;
 }
 
-/* ===== PRINT — only activates on Ctrl+P ===== */
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
 @media print {
+
+  /* ===== A4 Page Setup ===== */
+
   @page {
     size: A4 portrait;
-    margin: 0mm;
+
+    /*
+      Small physical page margin.
+      8mm gives a good balance between
+      printable area and safety margin.
+    */
+    margin: 8mm;
   }
 
-  html, body {
+  /* ===== Page Background ===== */
+
+  html,
+  body {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
   }
 
-  *, *::before, *::after {
+  /* ===== Hide Everything Except A4 Content ===== */
+
+  body * {
     visibility: hidden !important;
-    overflow: visible !important;
-    height: auto !important;
-    max-height: none !important;
-    aspect-ratio: auto !important;
   }
 
-  .a4-print-area, .a4-print-area * {
+  .a4-print-area,
+  .a4-print-area * {
     visibility: visible !important;
   }
 
+  /* ===== Main A4 Content ===== */
+
   .a4-print-area {
     width: 100% !important;
-    max-width: 100% !important;
+
+    /*
+      A4 height = 297mm
+      Page margins = 8mm top + 8mm bottom
+      Available height = 281mm
+    */
+    min-height: 281mm !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
     margin: 0 !important;
-    padding: 0 !important;
+
+    /*
+      Small internal padding so content
+      doesn't touch the printable edge.
+    */
+    padding: 4mm !important;
+
     background: white !important;
+
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    page-break-inside: avoid;
-    font-size: 13px !important;
+
+    aspect-ratio: auto !important;
+
+    overflow: visible !important;
+
+    box-sizing: border-box !important;
+
+    /*
+      Larger overall document text
+    */
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+
+    page-break-inside: avoid !important;
+  }
+
+
+  /* =========================================================
+     HEADINGS
+     ========================================================= */
+
+  .a4-print-area h1 {
+    font-size: 30px !important;
+    line-height: 1.2 !important;
+
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .a4-print-area h2 {
+    font-size: 21px !important;
+    line-height: 1.3 !important;
+
+    margin-top: 16px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .a4-print-area h3 {
+    font-size: 18px !important;
+    line-height: 1.35 !important;
+
+    margin-top: 12px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .a4-print-area h4 {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+  }
+
+
+  /* =========================================================
+     BODY TEXT
+     ========================================================= */
+
+  .a4-print-area p {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .a4-print-area li {
+    font-size: 15px !important;
     line-height: 1.5 !important;
   }
 
-  .a4-print-area h1 { font-size: 26px !important; }
-  .a4-print-area h2 { font-size: 18px !important; }
-  .a4-print-area table { font-size: 13px !important; }
-  .a4-print-area table th { font-size: 11px !important; }
-  .a4-print-area table td { font-size: 13px !important; padding: 8px 10px !important; }
-  .a4-print-area p { font-size: 13px !important; }
-  .a4-print-area .font-mono { font-size: 13px !important; }
 
-  * {
+  /* =========================================================
+     TABLES
+     ========================================================= */
+
+  .a4-print-area table {
+    width: 100% !important;
+
+    font-size: 14px !important;
+
+    border-collapse: collapse !important;
+
+    table-layout: auto !important;
+  }
+
+  .a4-print-area table th {
+    font-size: 13px !important;
+
+    padding: 7px 8px !important;
+
+    line-height: 1.3 !important;
+  }
+
+  .a4-print-area table td {
+    font-size: 14px !important;
+
+    padding: 8px 9px !important;
+
+    line-height: 1.4 !important;
+  }
+
+
+  /* =========================================================
+     MONOSPACE TEXT
+     ========================================================= */
+
+  .a4-print-area .font-mono {
+    font-size: 14px !important;
+  }
+
+
+  /* =========================================================
+     IMAGES
+     ========================================================= */
+
+  .a4-print-area img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+
+  /* =========================================================
+     LINKS
+     ========================================================= */
+
+  .a4-print-area a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+
+  /* =========================================================
+     COLORS / BACKGROUNDS
+     ========================================================= */
+
+  .a4-print-area *,
+  .a4-print-area {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+
+  /* =========================================================
+     AVOID BAD PAGE BREAKS
+     ========================================================= */
+
+  .a4-print-area table,
+  .a4-print-area tr,
+  .a4-print-area img,
+  .a4-print-area h1,
+  .a4-print-area h2,
+  .a4-print-area h3 {
+    page-break-inside: avoid !important;
+  }
+
+  .a4-print-area h1,
+  .a4-print-area h2,
+  .a4-print-area h3 {
+    page-break-after: avoid !important;
   }
 }
