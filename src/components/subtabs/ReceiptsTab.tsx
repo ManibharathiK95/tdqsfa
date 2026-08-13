@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Receipt, DepartmentId, CompanySettings } from '../../types';
+import {
+  Receipt,
+  DepartmentId,
+  CompanySettings,
+  Invoice,
+} from '../../types';
 import { formatCurrency, downloadCSV } from '../../utils/export';
 import {
   Receipt as ReceiptIcon,
@@ -12,36 +17,50 @@ import {
   Clock,
   ArrowDownLeft,
   ArrowUpRight,
+  Eye,
 } from 'lucide-react';
 
 interface ReceiptsTabProps {
   deptId: DepartmentId;
   receipts: Receipt[];
+  invoices: Invoice[];
   companySettings: CompanySettings;
   canEdit: boolean;
   onOpenCreateReceipt: () => void;
   onDeleteReceipt: (receiptId: string) => void;
+  onViewReceipt: (receipt: Receipt) => void;
 }
 
 export const ReceiptsTab: React.FC<ReceiptsTabProps> = ({
   deptId,
   receipts,
+  invoices,
   companySettings,
   canEdit,
   onOpenCreateReceipt,
   onDeleteReceipt,
+  onViewReceipt,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'incoming' | 'outgoing'>('all');
+  const [typeFilter, setTypeFilter] = useState<
+    'all' | 'incoming' | 'outgoing'
+  >('all');
 
   const filteredReceipts = receipts.filter((r) => {
-    const matchesDept = deptId === 'all' || r.deptId === deptId;
+    const search = searchTerm.toLowerCase();
+
+    const matchesDept =
+      deptId === 'all' || r.deptId === deptId;
+
     const matchesSearch =
-      r.receiptNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.clientOrVendorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.referenceNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (r.invoiceNo && r.invoiceNo.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesType = typeFilter === 'all' || r.type === typeFilter;
+      r.receiptNo?.toLowerCase().includes(search) ||
+      r.clientOrVendorName?.toLowerCase().includes(search) ||
+      r.referenceNo?.toLowerCase().includes(search) ||
+      r.invoiceNo?.toLowerCase().includes(search);
+
+    const matchesType =
+      typeFilter === 'all' || r.type === typeFilter;
+
     return matchesDept && matchesSearch && matchesType;
   });
 
@@ -55,7 +74,18 @@ export const ReceiptsTab: React.FC<ReceiptsTabProps> = ({
 
   const handleExportCSV = () => {
     const rows = [
-      ['Receipt No', 'Dept', 'Type', 'Client/Vendor', 'Invoice Ref', 'Payment Date', 'Mode', 'Ref No', 'Amount', 'Status'],
+      [
+        'Receipt No',
+        'Dept',
+        'Type',
+        'Client/Vendor',
+        'Invoice Ref',
+        'Payment Date',
+        'Mode',
+        'Ref No',
+        'Amount',
+        'Status',
+      ],
       ...filteredReceipts.map((r) => [
         r.receiptNo,
         r.deptId,
@@ -69,189 +99,314 @@ export const ReceiptsTab: React.FC<ReceiptsTabProps> = ({
         r.status,
       ]),
     ];
-    downloadCSV(`receipts_${deptId}_${new Date().toISOString().slice(0, 10)}`, rows);
+
+    downloadCSV(
+      `receipts_${deptId}_${new Date()
+        .toISOString()
+        .slice(0, 10)}`,
+      rows
+    );
   };
 
   return (
     <div className="space-y-4">
-      {/* Receipts KPI Mini Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+      {/* KPI SUMMARY */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900 p-3.5">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-xl">
-              <ArrowDownLeft className="w-5 h-5" />
+            <div className="rounded-xl border border-emerald-800 bg-emerald-950 p-2.5 text-emerald-400">
+              <ArrowDownLeft className="h-5 w-5" />
             </div>
+
             <div>
-              <p className="text-[10px] uppercase font-semibold text-slate-400">
+              <p className="text-[10px] font-semibold uppercase text-slate-400">
                 Total Incoming Collections
               </p>
-              <p className="text-lg font-bold text-emerald-400 mt-0.5">
-                {formatCurrency(totalIncoming, companySettings)}
+
+              <p className="mt-0.5 text-lg font-bold text-emerald-400">
+                {formatCurrency(
+                  totalIncoming,
+                  companySettings
+                )}
               </p>
             </div>
           </div>
-          <span className="text-xs text-slate-400">Client Payments</span>
+
+          <span className="text-xs text-slate-400">
+            Client Payments
+          </span>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900 p-3.5">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-rose-950 text-rose-400 border border-rose-800 rounded-xl">
-              <ArrowUpRight className="w-5 h-5" />
+            <div className="rounded-xl border border-rose-800 bg-rose-950 p-2.5 text-rose-400">
+              <ArrowUpRight className="h-5 w-5" />
             </div>
+
             <div>
-              <p className="text-[10px] uppercase font-semibold text-slate-400">
+              <p className="text-[10px] font-semibold uppercase text-slate-400">
                 Total Outgoing Disbursements
               </p>
-              <p className="text-lg font-bold text-rose-400 mt-0.5">
-                {formatCurrency(totalOutgoing, companySettings)}
+
+              <p className="mt-0.5 text-lg font-bold text-rose-400">
+                {formatCurrency(
+                  totalOutgoing,
+                  companySettings
+                )}
               </p>
             </div>
           </div>
-          <span className="text-xs text-slate-400">Vendor / Subcontractor</span>
+
+          <span className="text-xs text-slate-400">
+            Vendor / Subcontractor
+          </span>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
+      {/* TOOLBAR */}
+      <div className="flex flex-col items-stretch justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-sm sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
           <input
             type="text"
             placeholder="Search receipts by receipt #, client/vendor, or bank reference..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none"
+            onChange={(e) =>
+              setSearchTerm(e.target.value)
+            }
+            className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2 pl-9 pr-4 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center space-x-2 shrink-0">
-          <div className="flex items-center space-x-1 bg-slate-950 border border-slate-800 p-1 rounded-xl text-xs">
-            <Filter className="w-3.5 h-3.5 text-slate-400 ml-1.5" />
-            {(['all', 'incoming', 'outgoing'] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTypeFilter(t)}
-                className={`px-2.5 py-1 rounded-lg font-medium text-[11px] capitalize transition-all ${
-                  typeFilter === t
-                    ? 'bg-indigo-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {t}
-              </button>
-            ))}
+        <div className="flex shrink-0 items-center space-x-2">
+          {/* FILTER */}
+          <div className="flex items-center space-x-1 rounded-xl border border-slate-800 bg-slate-950 p-1 text-xs">
+            <Filter className="ml-1.5 h-3.5 w-3.5 text-slate-400" />
+
+            {(['all', 'incoming', 'outgoing'] as const).map(
+              (t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() =>
+                    setTypeFilter(t)
+                  }
+                  className={`rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize transition-all ${
+                    typeFilter === t
+                      ? 'bg-indigo-600 font-bold text-white'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {t}
+                </button>
+              )
+            )}
           </div>
 
+          {/* EXPORT */}
           <button
+            type="button"
             onClick={handleExportCSV}
-            className="flex items-center space-x-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-all"
+            className="flex items-center space-x-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-semibold text-slate-200 transition-all hover:bg-slate-700"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-            <span className="hidden md:inline">Export CSV</span>
+            <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+
+            <span className="hidden md:inline">
+              Export CSV
+            </span>
           </button>
 
+          {/* CREATE */}
           {canEdit && (
             <button
+              type="button"
               onClick={onOpenCreateReceipt}
-              className="flex items-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md transition-all"
+              className="flex items-center space-x-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-indigo-500"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
+
               <span>Record Receipt</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Receipts Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      {/* TABLE */}
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold text-[10px]">
-                <th className="py-3.5 px-4">Receipt No & Type</th>
-                <th className="py-3.5 px-4">Client / Vendor Name</th>
-                <th className="py-3.5 px-4">Invoice / Payment Ref</th>
-                <th className="py-3.5 px-4">Date & Payment Mode</th>
-                <th className="py-3.5 px-4 text-right">Amount</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                {canEdit && <th className="py-3.5 px-4 text-center">Actions</th>}
+              <tr className="border-b border-slate-800 bg-slate-950/80 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <th className="px-4 py-3.5">
+                  Receipt No & Type
+                </th>
+
+                <th className="px-4 py-3.5">
+                  Client / Vendor Name
+                </th>
+
+                <th className="px-4 py-3.5">
+                  Invoice / Payment Ref
+                </th>
+
+                <th className="px-4 py-3.5">
+                  Date & Payment Mode
+                </th>
+
+                <th className="px-4 py-3.5 text-right">
+                  Amount
+                </th>
+
+                <th className="px-4 py-3.5 text-center">
+                  Status
+                </th>
+
+                <th className="px-4 py-3.5 text-center">
+                  Actions
+                </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
               {filteredReceipts.length === 0 ? (
                 <tr>
-                  <td colSpan={canEdit ? 7 : 6} className="text-center py-10 text-slate-500">
+                  <td
+                    colSpan={7}
+                    className="py-10 text-center text-slate-500"
+                  >
                     No payment receipts found.
                   </td>
                 </tr>
               ) : (
                 filteredReceipts.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-400">
+                  <tr
+                    key={r.id}
+                    className="transition-colors hover:bg-slate-800/40"
+                  >
+                    {/* RECEIPT */}
+                    <td className="px-4 py-3.5 font-mono font-bold text-indigo-400">
                       <div className="flex items-center space-x-2">
                         <span>{r.receiptNo}</span>
+
                         <span
-                          className={`px-1.5 py-0.5 rounded text-[9px] font-sans font-bold uppercase ${
+                          className={`rounded px-1.5 py-0.5 text-[9px] font-sans font-bold uppercase ${
                             r.type === 'incoming'
-                              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                              : 'bg-rose-950 text-rose-400 border border-rose-800'
+                              ? 'border border-emerald-800 bg-emerald-950 text-emerald-400'
+                              : 'border border-rose-800 bg-rose-950 text-rose-400'
                           }`}
                         >
                           {r.type}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-400 font-sans uppercase">
+
+                      <div className="font-sans text-[10px] uppercase text-slate-400">
                         {r.deptId}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-white">{r.clientOrVendorName}</td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-mono text-slate-200">Ref: {r.referenceNo}</div>
+
+                    {/* CLIENT */}
+                    <td className="px-4 py-3.5 font-bold text-white">
+                      {r.clientOrVendorName}
+                    </td>
+
+                    {/* REFERENCE */}
+                    <td className="px-4 py-3.5">
+                      <div className="font-mono text-slate-200">
+                        Ref: {r.referenceNo}
+                      </div>
+
                       {r.invoiceNo && (
-                        <div className="text-[10px] text-indigo-400 font-mono">
+                        <div className="font-mono text-[10px] text-indigo-400">
                           Linked Inv: {r.invoiceNo}
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="text-slate-200">{r.paymentDate}</div>
-                      <div className="text-[10px] text-slate-400 capitalize">
-                        {r.paymentMode.replace('_', ' ')}
+
+                    {/* DATE */}
+                    <td className="px-4 py-3.5">
+                      <div className="text-slate-200">
+                        {r.paymentDate}
+                      </div>
+
+                      <div className="text-[10px] capitalize text-slate-400">
+                        {r.paymentMode.replace(
+                          '_',
+                          ' '
+                        )}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-bold text-sm">
-                      <span className={r.type === 'incoming' ? 'text-emerald-400' : 'text-rose-400'}>
-                        {r.type === 'incoming' ? '+' : '-'}
-                        {formatCurrency(r.amount, companySettings)}
+
+                    {/* AMOUNT */}
+                    <td className="px-4 py-3.5 text-right text-sm font-bold">
+                      <span
+                        className={
+                          r.type === 'incoming'
+                            ? 'text-emerald-400'
+                            : 'text-rose-400'
+                        }
+                      >
+                        {r.type === 'incoming'
+                          ? '+'
+                          : '-'}
+                        {formatCurrency(
+                          r.amount,
+                          companySettings
+                        )}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+
+                    {/* STATUS */}
+                    <td className="px-4 py-3.5 text-center">
                       <span
-                        className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`inline-flex items-center space-x-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                           r.status === 'cleared'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-amber-950 text-amber-400 border border-amber-800'
+                            ? 'border border-emerald-800 bg-emerald-950 text-emerald-400'
+                            : 'border border-amber-800 bg-amber-950 text-amber-400'
                         }`}
                       >
                         {r.status === 'cleared' ? (
-                          <CheckCircle2 className="w-3 h-3" />
+                          <CheckCircle2 className="h-3 w-3" />
                         ) : (
-                          <Clock className="w-3 h-3" />
+                          <Clock className="h-3 w-3" />
                         )}
-                        <span className="capitalize">{r.status}</span>
+
+                        <span className="capitalize">
+                          {r.status}
+                        </span>
                       </span>
                     </td>
-                    {canEdit && (
-                      <td className="py-3.5 px-4 text-center">
+
+                    {/* ACTIONS */}
+                    <td className="px-4 py-3.5 text-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        {/* VIEW */}
                         <button
-                          onClick={() => onDeleteReceipt(r.id)}
-                          className="p-1.5 hover:bg-rose-950 text-slate-400 hover:text-rose-400 rounded-lg transition-colors"
-                          title="Delete Receipt"
+                          type="button"
+                          onClick={() =>
+                            onViewReceipt(r)
+                          }
+                          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-indigo-950 hover:text-indigo-400"
+                          title="View Receipt"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Eye className="h-3.5 w-3.5" />
                         </button>
-                      </td>
-                    )}
+
+                        {/* DELETE */}
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onDeleteReceipt(r.id)
+                            }
+                            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-950 hover:text-rose-400"
+                            title="Delete Receipt"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -262,3 +417,5 @@ export const ReceiptsTab: React.FC<ReceiptsTabProps> = ({
     </div>
   );
 };
+
+export default ReceiptsTab;
