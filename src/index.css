@@ -88,7 +88,7 @@ textarea:focus {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 1mm 1mm !important;
+    margin: 0mm 0mm !important;
   }
 
   html, body {
