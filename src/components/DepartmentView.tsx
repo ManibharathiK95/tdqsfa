@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import {
   DepartmentId,
-  Invoice,
+  User,
+  CompanySettings,
+  VendorContractor,
   Quotation,
+  Invoice,
   Receipt,
   Transaction,
-  VendorContractor,
-  CompanySettings,
-  User,
 } from '../types';
-
-import { DepartmentOverviewTab } from './subtabs/DepartmentOverviewTab';
-import { VendorsContractorsTab } from './subtabs/VendorsContractorsTab';
-import { QuotationsTab } from './subtabs/QuotationsTab';
-import { InvoicesTab } from './subtabs/InvoicesTab';
-import { ReceiptsTab } from './subtabs/ReceiptsTab';
-import { IncomeExpensesTab } from './subtabs/IncomeExpensesTab';
-import { ExportReportsTab } from './subtabs/ExportReportsTab';
+import { DepartmentOverviewTab } from './DepartmentOverviewTab';
+import { VendorsContractorsTab } from './VendorsContractorsTab';
+import { QuotationsTab } from './QuotationsTab';
+import { InvoicesTab } from './InvoicesTab';
+import { ReceiptsTab } from './ReceiptsTab';
+import { IncomeExpensesTab } from './IncomeExpensesTab';
+import { ExportReportsTab } from './ExportReportsTab';
 
 import {
   LayoutDashboard,
@@ -66,14 +65,7 @@ interface DepartmentViewProps {
   onResetFactoryData: () => void;
 }
 
-export type SubTabId =
-  | 'overview'
-  | 'vendors'
-  | 'quotations'
-  | 'invoices'
-  | 'receipts'
-  | 'finance'
-  | 'export';
+export type SubTabId = 'overview' | 'vendors' | 'quotations' | 'invoices' | 'receipts' | 'finance' | 'export';
 
 export const DepartmentView: React.FC<DepartmentViewProps> = ({
   deptId,
@@ -85,132 +77,66 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
   invoices,
   receipts,
   transactions,
-
   onOpenCreateVendor,
   onOpenEditVendor,
   onDeleteVendor,
-
   onOpenCreateQuotation,
   onOpenEditQuotation,
   onDeleteQuotation,
   onConvertToInvoice,
   onViewQuotation,
-
   onOpenCreateInvoice,
   onOpenEditInvoice,
   onDeleteInvoice,
   onViewInvoice,
   onRecordPayment,
-
   onOpenCreateReceipt,
   onDeleteReceipt,
   onViewReceipt,
-
   onOpenCreateTransaction,
   onDeleteTransaction,
-
   onImportFullBackup,
   onResetFactoryData,
 }) => {
-  const [activeSubTab, setActiveSubTab] =
-    useState<SubTabId>('overview');
+  const [activeSubTab, setActiveSubTab] = useState<SubTabId>('overview');
 
   const canEdit =
-    currentUser.role === 'admin' ||
-    currentUser.departmentId === 'all' ||
-    currentUser.departmentId === deptId;
+    currentUser.role === 'admin' || currentUser.departmentId === 'all' || currentUser.departmentId === deptId;
 
   const subTabs = [
-    {
-      id: 'overview',
-      label: 'Overview',
-      icon: LayoutDashboard,
-    },
-    {
-      id: 'vendors',
-      label: 'Contractors & Vendors',
-      icon: Users,
-      count: vendors.filter(
-        (v) => deptId === 'all' || v.deptId === deptId
-      ).length,
-    },
-    {
-      id: 'quotations',
-      label: 'Quotations & Estimates',
-      icon: FileText,
-      count: quotations.filter(
-        (q) => deptId === 'all' || q.deptId === deptId
-      ).length,
-    },
-    {
-      id: 'invoices',
-      label: 'Invoices & Billing',
-      icon: CheckSquare,
-      count: invoices.filter(
-        (i) => deptId === 'all' || i.deptId === deptId
-      ).length,
-    },
-    {
-      id: 'receipts',
-      label: 'Receipts & Clearance',
-      icon: ReceiptIcon,
-      count: receipts.filter(
-        (r) => deptId === 'all' || r.deptId === deptId
-      ).length,
-    },
-    {
-      id: 'finance',
-      label: 'Income & Expenses',
-      icon: TrendingDown,
-      count: transactions.filter(
-        (t) => deptId === 'all' || t.deptId === deptId
-      ).length,
-    },
-    {
-      id: 'export',
-      label: 'Export & Reports',
-      icon: FileSpreadsheet,
-    },
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'vendors', label: 'Contractors & Vendors', icon: Users, count: vendors.filter(v => deptId === 'all' || v.deptId === deptId).length },
+    { id: 'quotations', label: 'Quotations & Estimates', icon: FileText, count: quotations.filter(q => deptId === 'all' || q.deptId === deptId).length },
+    { id: 'invoices', label: 'Invoices & Billing', icon: CheckSquare, count: invoices.filter(i => deptId === 'all' || i.deptId === deptId).length },
+    { id: 'receipts', label: 'Receipts & Clearance', icon: ReceiptIcon, count: receipts.filter(r => deptId === 'all' || r.deptId === deptId).length },
+    { id: 'finance', label: 'Income & Expenses', icon: TrendingDown, count: transactions.filter(t => deptId === 'all' || t.deptId === deptId).length },
+    { id: 'export', label: 'Export & Reports', icon: FileSpreadsheet },
   ];
 
   return (
     <div className="space-y-6 pb-12">
-
       {/* Sub-Tabs Bar */}
       <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-1.5 shadow-md overflow-x-auto scrollbar-none">
         <div className="flex space-x-1 min-w-max">
           {subTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeSubTab === tab.id;
-
             return (
               <button
                 key={tab.id}
-                onClick={() =>
-                  setActiveSubTab(tab.id as SubTabId)
-                }
+                onClick={() => setActiveSubTab(tab.id as SubTabId)}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   isActive
                     ? 'bg-emerald-700 text-white shadow-md shadow-emerald-950/50 border border-emerald-500'
                     : 'text-zinc-300 hover:text-white hover:bg-zinc-900'
                 }`}
               >
-                <Icon
-                  className={`w-4 h-4 ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-emerald-400'
-                  }`}
-                />
-
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-emerald-400'}`} />
                 <span>{tab.label}</span>
-
                 {tab.count !== undefined && (
                   <span
                     className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                      isActive
-                        ? 'bg-emerald-900 text-emerald-100'
-                        : 'bg-zinc-900 text-zinc-300 border border-zinc-800'
+                      isActive ? 'bg-emerald-900 text-emerald-100' : 'bg-zinc-900 text-zinc-300 border border-zinc-800'
                     }`}
                   >
                     {tab.count}
@@ -222,7 +148,7 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         </div>
       </div>
 
-      {/* OVERVIEW */}
+      {/* Render Active Sub-Tab */}
       {activeSubTab === 'overview' && (
         <DepartmentOverviewTab
           deptId={deptId}
@@ -232,13 +158,10 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
           receipts={receipts}
           transactions={transactions}
           vendors={vendors}
-          onSelectSubTab={(tab) =>
-            setActiveSubTab(tab as SubTabId)
-          }
+          onSelectSubTab={(tab) => setActiveSubTab(tab as SubTabId)}
         />
       )}
 
-      {/* VENDORS */}
       {activeSubTab === 'vendors' && (
         <VendorsContractorsTab
           deptId={deptId}
@@ -251,7 +174,6 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
-      {/* QUOTATIONS */}
       {activeSubTab === 'quotations' && (
         <QuotationsTab
           deptId={deptId}
@@ -266,7 +188,6 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
-      {/* INVOICES */}
       {activeSubTab === 'invoices' && (
         <InvoicesTab
           deptId={deptId}
@@ -281,7 +202,6 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
-      {/* RECEIPTS */}
       {activeSubTab === 'receipts' && (
         <ReceiptsTab
           deptId={deptId}
@@ -294,7 +214,6 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
-      {/* FINANCE */}
       {activeSubTab === 'finance' && (
         <IncomeExpensesTab
           deptId={deptId}
@@ -306,7 +225,6 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
-      {/* EXPORT */}
       {activeSubTab === 'export' && (
         <ExportReportsTab
           deptId={deptId}
@@ -325,5 +243,3 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
     </div>
   );
 };
-
-export default DepartmentView;
