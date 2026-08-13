@@ -88,7 +88,7 @@ textarea:focus {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 3.5mm 3.5mm;
+    margin: 0mm 0mm;
   }
 
   html, body {
@@ -100,7 +100,7 @@ textarea:focus {
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
-    aspect-ratio: 210 / 297 !important;
+    aspect-ratio: auto !important;
   }
 
   .a4-print-area, .a4-print-area * {
@@ -110,7 +110,7 @@ textarea:focus {
   .a4-print-area {
     width: 100% !important;
     max-width: 100% !important;
-    margin: -10 !important;
+    margin: 0 !important;
     padding: 0 !important;
     background: white !important;
     border: none !important;
