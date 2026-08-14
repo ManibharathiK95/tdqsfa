@@ -1,6 +1,3 @@
-Absolutely. I’d keep your existing Tailwind structure and print/A4 behavior, but switch the **application UI from dark/cyan to a white + grey + forest-green professional system**, while preserving **red/orange/blue semantic states**.
-
-```css
 @import "tailwindcss";
 
 html {
