@@ -2,45 +2,53 @@
 
 /* ==========================================================
    THULIR DESIGN & QS SERVICES — F&A ERP
-   Professional Clean Light Theme
+   Clean Professional Theme
    ========================================================== */
 
 @layer base {
   :root {
-    /* Emerald & Slate Palette */
-    --color-primary: #15803d;
-    --color-primary-hover: #166534;
-    --color-primary-soft: #f0fdf4;
-    --color-primary-text: #15803d;
+    /* Main Theme Palette */
+    --primary: #15803d;
+    --primary-hover: #166534;
+    --primary-soft: #f0fdf4;
+    --primary-text: #15803d;
 
-    --color-bg: #f8fafc;
-    --color-surface: #ffffff;
-    --color-border: #e2e8f0;
-    --color-border-light: #f1f5f9;
+    /* Backgrounds & Surfaces (Light & Professional) */
+    --bg-main: #f1f5f9;         /* Soft Light Gray/Slate */
+    --bg-surface: #ffffff;      /* Pure White for Cards/Panels */
+    --bg-subtle: #f8fafc;       /* Off-White for Table Headers/Hover */
 
-    --color-text-main: #0f172a;
-    --color-text-dim: #475569;
-    --color-text-muted: #94a3b8;
+    /* Borders */
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
 
-    --color-income: #16a34a;
-    --color-income-bg: #f0fdf4;
-    --color-expense: #dc2626;
-    --color-expense-bg: #fef2f2;
-    --color-pending: #ea580c;
-    --color-pending-bg: #fff7ed;
-    --color-info: #2563eb;
-    --color-info-bg: #eff6ff;
+    /* High-Contrast Typography */
+    --text-main: #0f172a;       /* Deep Slate (Main Headlines & Data) */
+    --text-dim: #475569;        /* Medium Slate (Labels & Subtitles) */
+    --text-muted: #94a3b8;      /* Light Slate (Captions & Notes) */
 
-    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -2px rgba(15, 23, 42, 0.1);
-    --radius-main: 10px;
+    /* Financial Status Colors */
+    --income: #16a34a;
+    --income-bg: #f0fdf4;
+    --expense: #dc2626;
+    --expense-bg: #fef2f2;
+    --pending: #ea580c;
+    --pending-bg: #fff7ed;
+    --info: #2563eb;
+    --info-bg: #eff6ff;
+
+    /* Elevation & Radius */
+    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+    --radius: 10px;
   }
 
   body {
-    background-color: var(--color-bg);
-    color: var(--color-text-main);
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -48,107 +56,115 @@
    LAYOUT STRUCTURE
    ========================================================== */
 
-.app-wrapper {
+.app, #root {
   width: 100%;
   min-height: 100vh;
+  background-color: var(--bg-main);
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg);
 }
 
-.app-header {
+.header {
   width: 100%;
   height: 60px;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 24px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 100;
 }
 
-.app-navbar {
+.nav-bar {
   width: 100%;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0 1.5rem;
-  height: 48px;
+  gap: 4px;
+  padding: 0 24px;
+  height: 46px;
   overflow-x: auto;
 }
 
-.app-main {
+.main {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 24px;
   flex: 1;
 }
 
 /* ==========================================================
-   NAVBAR LINKS
+   NAVIGATION LINKS
    ========================================================== */
 
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 6px;
-  font-size: 0.8125rem;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-dim);
+  color: var(--text-dim) !important;
   white-space: nowrap;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.15s ease;
 }
 
 .nav-link:hover {
-  color: var(--color-primary-text);
-  background-color: var(--color-primary-soft);
+  color: var(--primary-text) !important;
+  background-color: var(--primary-soft) !important;
 }
 
 .nav-link.active {
-  color: #ffffff;
-  background-color: var(--color-primary);
+  color: #ffffff !important;
+  background-color: var(--primary) !important;
 }
 
 /* ==========================================================
    HERO BANNER
    ========================================================== */
 
-.hero-banner {
+.hero {
   width: 100%;
-  background: linear-gradient(135deg, #14532d 0%, #166534 100%);
-  color: #ffffff;
-  border-radius: var(--radius-main);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #14532d 0%, #166534 100%) !important;
+  color: #ffffff !important;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
-.hero-title {
-  font-size: 1.375rem;
+.hero-eyebrow {
+  font-size: 11px;
   font-weight: 700;
-  color: #ffffff;
-  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #4ade80 !important;
+  margin-bottom: 2px;
 }
 
-.hero-subtitle {
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 0.25rem;
+.hero h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff !important;
+}
+
+.hero p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 /* ==========================================================
-   CARDS & GRIDS
+   CARDS (WHITE ON LIGHT-GRAY BACKGROUND)
    ========================================================== */
 
 .kpi-grid,
@@ -156,106 +172,139 @@
   width: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.erp-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-main);
-  padding: 1.25rem;
+/* Force pure white background on cards */
+.kpi-card,
+.dept-card,
+.panel,
+.card {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius);
+  padding: 20px;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+  color: var(--text-main) !important;
 }
 
-.erp-card:hover {
+.kpi-card:hover,
+.dept-card:hover,
+.panel:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
 .kpi-label {
-  font-size: 0.6875rem;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-dim);
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+  color: var(--text-dim) !important;
+  margin-bottom: 10px;
 }
 
 .kpi-value {
-  font-size: 1.5rem;
+  font-size: 24px;
   font-weight: 800;
-  color: var(--color-text-main);
+  color: var(--text-main) !important;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
 }
 
-/* Dynamic status text colors */
-.val-income  { color: var(--color-income); }
-.val-expense { color: var(--color-expense); }
-.val-pending { color: var(--color-pending); }
-.val-info    { color: var(--color-info); }
+/* Colors for Values */
+.kpi-value.income,  .val.income  { color: var(--income) !important; }
+.kpi-value.expense, .val.expense { color: var(--expense) !important; }
+.kpi-value.pending, .val.pending { color: var(--pending) !important; }
+.kpi-value.net,     .val.net     { color: var(--info) !important; }
 
-/* Financial row inside cards */
+.dept-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main) !important;
+  margin-bottom: 4px;
+}
+
+.dept-card .desc {
+  font-size: 12px;
+  color: var(--text-dim) !important;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+/* ==========================================================
+   FINANCIAL BREAKDOWN ROWS
+   ========================================================== */
+
 .fin-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.375rem 0;
-  border-bottom: 1px solid var(--color-border-light);
-  font-size: 0.8125rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 12px;
 }
 
 .fin-row:last-child {
   border-bottom: none;
 }
 
+.fin-row .label {
+  color: var(--text-dim) !important;
+}
+
+.fin-row .val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ==========================================================
-   PANELS & TABLES
+   TABLES
    ========================================================== */
 
-.panel-grid {
+.table-wrap {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1rem;
-}
-
-.table-container {
-  width: 100%;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-main);
-  overflow-x: auto;
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  overflow-x: auto;
 }
 
-.table-container table {
+.table-wrap table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.table-container th {
-  background-color: var(--color-bg);
-  padding: 0.75rem 1rem;
+.table-wrap thead {
+  background-color: var(--bg-subtle) !important;
+}
+
+.table-wrap th {
+  padding: 12px 16px;
   text-align: left;
-  font-size: 0.6875rem;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-dim);
-  border-bottom: 1px solid var(--color-border);
+  letter-spacing: 0.5px;
+  color: var(--text-dim) !important;
+  border-bottom: 1px solid var(--border);
 }
 
-.table-container td {
-  padding: 0.75rem 1rem;
-  font-size: 0.8125rem;
-  color: var(--color-text-main);
-  border-bottom: 1px solid var(--color-border-light);
+.table-wrap td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-main) !important;
+  border-bottom: 1px solid var(--border-light);
 }
 
-.table-container tr:last-child td {
+.table-wrap tbody tr:hover {
+  background-color: var(--bg-subtle) !important;
+}
+
+.table-wrap tbody tr:last-child td {
   border-bottom: none;
 }
 
@@ -266,53 +315,60 @@
 .btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
+  gap: 6px;
   height: 36px;
-  padding: 0 1rem;
-  border-radius: 6px;
-  font-size: 0.8125rem;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
+  white-space: nowrap;
   transition: all 0.15s ease;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  color: var(--color-text-main);
+  cursor: pointer;
 }
 
-.btn-primary {
-  background-color: var(--color-primary);
-  color: #ffffff;
-  border-color: var(--color-primary);
+.btn:hover {
+  background-color: var(--bg-subtle) !important;
+  box-shadow: var(--shadow-sm);
 }
 
-.btn-primary:hover {
-  background-color: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
+.btn--primary {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+.btn--primary:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.125rem 0.5rem;
+  padding: 3px 9px;
   border-radius: 9999px;
-  font-size: 0.6875rem;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.badge-income  { background-color: var(--color-income-bg); color: var(--color-income); }
-.badge-expense { background-color: var(--color-expense-bg); color: var(--color-expense); }
-.badge-pending { background-color: var(--color-pending-bg); color: var(--color-pending); }
+.badge--income  { color: var(--income) !important;  background-color: var(--income-bg) !important; }
+.badge--expense { color: var(--expense) !important; background-color: var(--expense-bg) !important; }
+.badge--pending { color: var(--pending) !important; background-color: var(--pending-bg) !important; }
+.badge--info    { color: var(--info) !important;    background-color: var(--info-bg) !important; }
 
 /* ==========================================================
-   MEDIA QUERIES
+   RESPONSIVE ADJUSTMENTS
    ========================================================== */
 
+@media (max-width: 900px) {
+  .main { padding: 16px; }
+  .header, .nav-bar { padding: 0 16px; }
+}
+
 @media (max-width: 640px) {
-  .panel-grid {
-    grid-template-columns: 1fr;
-  }
-  .app-main {
-    padding: 1rem;
-  }
+  .main { padding: 12px; }
+  .kpi-grid, .dept-grid { grid-template-columns: 1fr; }
 }
