@@ -2,51 +2,54 @@
 
 /* ==========================================================
    THULIR DESIGN & QS SERVICES — F&A ERP
-   Clean Professional Theme
+   Corporate Executive Theme (Midnight & Emerald Palette)
    ========================================================== */
 
 @layer base {
   :root {
-    /* Main Theme Palette */
-    --primary: #15803d;
-    --primary-hover: #166534;
-    --primary-soft: #f0fdf4;
-    --primary-text: #15803d;
+    /* Brand & Primary System Colors (Midnight Slate & Emerald Accent) */
+    --primary: #0f172a;           /* Deep Midnight Slate for primary anchors/branding */
+    --primary-hover: #1e293b;     /* Rich Charcoal Hover */
+    --primary-soft: #f1f5f9;      /* Clean Slate Tint for active selections */
+    --primary-text: #0f172a;      /* Strong High-Contrast Text */
 
-    /* Backgrounds & Surfaces (Light & Professional) */
-    --bg-main: #f1f5f9;         /* Soft Light Gray/Slate */
-    --bg-surface: #ffffff;      /* Pure White for Cards/Panels */
-    --bg-subtle: #f8fafc;       /* Off-White for Table Headers/Hover */
+    /* Surface Hierarchy (Layered Neutral Depth) */
+    --bg-main: #f8fafc;          /* Off-White Cool Slate canvas */
+    --bg-surface: #ffffff;       /* Pure White for Elevated Cards & Tables */
+    --bg-subtle: #f1f5f9;        /* Soft Gray for Headers, Hovers, & Zebra striping */
+    --bg-muted: #e2e8f0;         /* Muted Gray for disabled states & dividers */
 
-    /* Borders */
-    --border: #e2e8f0;
-    --border-light: #f1f5f9;
+    /* Precision Borders */
+    --border: #e2e8f0;           /* Subtle structural container outline */
+    --border-strong: #cbd5e1;    /* Defined focus & active field borders */
+    --border-light: #f1f5f9;     /* Ultra-light row separators */
 
-    /* High-Contrast Typography */
-    --text-main: #0f172a;       /* Deep Slate (Main Headlines & Data) */
-    --text-dim: #475569;        /* Medium Slate (Labels & Subtitles) */
-    --text-muted: #94a3b8;      /* Light Slate (Captions & Notes) */
+    /* Executive High-Contrast Typography */
+    --text-main: #0f172a;        /* Deep Slate for high-priority numbers & titles */
+    --text-dim: #334155;         /* Medium Slate for primary labels & navigation */
+    --text-muted: #64748b;       /* Cool Muted Gray for secondary metadata & captions */
 
-    /* Financial Status Colors */
-    --income: #16a34a;
-    --income-bg: #f0fdf4;
-    --expense: #dc2626;
-    --expense-bg: #fef2f2;
-    --pending: #ea580c;
-    --pending-bg: #fff7ed;
-    --info: #2563eb;
-    --info-bg: #eff6ff;
+    /* Financial Indicators (Accounting Standard Tones) */
+    --income: #059669;           /* Emerald 600 - Revenue / Credits */
+    --income-bg: #ecfdf5;        /* Soft Emerald 50 Tint */
+    --expense: #dc2626;          /* Red 600 - Expenses / Debits */
+    --expense-bg: #fef2f2;       /* Soft Red 50 Tint */
+    --pending: #d97706;          /* Amber 600 - Receivables / Payables Pending */
+    --pending-bg: #fffbe3;       /* Soft Amber Tint */
+    --info: #0284c7;             /* Sky 600 - Net Balances & System Alerts */
+    --info-bg: #f0f9ff;          /* Soft Sky Tint */
 
-    /* Elevation & Radius */
-    --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-    --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
-    --radius: 10px;
+    /* Elevation, Inset Effects, & Radii */
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+    --radius: 8px;               /* Sharper corporate curvature */
   }
 
   body {
     background-color: var(--bg-main) !important;
     color: var(--text-main) !important;
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -75,6 +78,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-bar {
@@ -83,9 +87,9 @@
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 0 24px;
-  height: 46px;
+  height: 48px;
   overflow-x: auto;
 }
 
@@ -104,14 +108,14 @@
 .nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 6px 14px;
   border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-dim) !important;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: all 0.15s ease-in-out;
 }
 
 .nav-link:hover {
@@ -122,6 +126,8 @@
 .nav-link.active {
   color: #ffffff !important;
   background-color: var(--primary) !important;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 /* ==========================================================
@@ -130,41 +136,43 @@
 
 .hero {
   width: 100%;
-  background: linear-gradient(135deg, #14532d 0%, #166534 100%) !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
   color: #ffffff !important;
   border-radius: var(--radius);
-  padding: 20px 24px;
+  padding: 24px 28px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  border: 1px solid #334155;
 }
 
 .hero-eyebrow {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #4ade80 !important;
-  margin-bottom: 2px;
+  letter-spacing: 1px;
+  color: #38bdf8 !important; /* Sky Blue Accent */
+  margin-bottom: 4px;
 }
 
 .hero h1 {
   font-size: 22px;
   font-weight: 700;
   color: #ffffff !important;
+  letter-spacing: -0.3px;
 }
 
 .hero p {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: #94a3b8 !important;
 }
 
 /* ==========================================================
-   CARDS (WHITE ON LIGHT-GRAY BACKGROUND)
+   CARDS & PANELS
    ========================================================== */
 
 .kpi-grid,
@@ -176,7 +184,6 @@
   margin-bottom: 24px;
 }
 
-/* Force pure white background on cards */
 .kpi-card,
 .dept-card,
 .panel,
@@ -186,7 +193,7 @@
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
   color: var(--text-main) !important;
 }
 
@@ -194,27 +201,28 @@
 .dept-card:hover,
 .panel:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  border-color: var(--border-strong) !important;
 }
 
 .kpi-label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-dim) !important;
-  margin-bottom: 10px;
+  letter-spacing: 0.6px;
+  color: var(--text-muted) !important;
+  margin-bottom: 8px;
 }
 
 .kpi-value {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: var(--text-main) !important;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
   line-height: 1.2;
 }
 
-/* Colors for Values */
+/* Colors for Financial Values */
 .kpi-value.income,  .val.income  { color: var(--income) !important; }
 .kpi-value.expense, .val.expense { color: var(--expense) !important; }
 .kpi-value.pending, .val.pending { color: var(--pending) !important; }
@@ -229,9 +237,9 @@
 
 .dept-card .desc {
   font-size: 12px;
-  color: var(--text-dim) !important;
-  margin-bottom: 14px;
-  line-height: 1.4;
+  color: var(--text-muted) !important;
+  margin-bottom: 16px;
+  line-height: 1.5;
 }
 
 /* ==========================================================
@@ -242,9 +250,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border-light);
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .fin-row:last-child {
@@ -256,7 +264,7 @@
 }
 
 .fin-row .val {
-  font-weight: 700;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -288,8 +296,8 @@
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-dim) !important;
+  letter-spacing: 0.6px;
+  color: var(--text-muted) !important;
   border-bottom: 1px solid var(--border);
 }
 
@@ -319,7 +327,7 @@
   height: 36px;
   padding: 0 14px;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: 6px;
   background-color: var(--bg-surface) !important;
   color: var(--text-main) !important;
   font-size: 13px;
@@ -331,6 +339,7 @@
 
 .btn:hover {
   background-color: var(--bg-subtle) !important;
+  border-color: var(--border-strong) !important;
   box-shadow: var(--shadow-sm);
 }
 
@@ -343,15 +352,17 @@
 .btn--primary:hover {
   background-color: var(--primary-hover) !important;
   border-color: var(--primary-hover) !important;
+  box-shadow: var(--shadow-sm);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
-  border-radius: 9999px;
+  padding: 3px 10px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 .badge--income  { color: var(--income) !important;  background-color: var(--income-bg) !important; }
