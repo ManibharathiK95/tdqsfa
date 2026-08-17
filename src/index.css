@@ -434,7 +434,7 @@ body {
 
 .app,
 #root {
-  width: 100%;
+  width: 100% !important;
   min-height: 100vh;
   background-color: var(--finance-bg);
   display: flex;
