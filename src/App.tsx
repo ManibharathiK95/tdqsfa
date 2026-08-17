@@ -81,8 +81,6 @@ export default function App() {
       if (found) return found;
     }
     return null;
-});
-
   const [activeDeptId, setActiveDeptId] = useState<DepartmentId>('all');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
