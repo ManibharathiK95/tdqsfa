@@ -10,6 +10,8 @@ import {
   Transaction,
 } from './types';
 import { Storage } from './utils/storage';
+import { db } from './utils/firebase';
+import { ref, set, onValue } from 'firebase/database';
 import { PinLogin } from './components/PinLogin';
 import { Header } from './components/Header';
 import { ExecutiveDashboard } from './components/ExecutiveDashboard';
@@ -25,8 +27,6 @@ import { ViewReceiptModal } from './components/modals/ViewReceiptModal';
 import { CheckCircle } from 'lucide-react';
 
 // ─── Number Reuse Logic ───
-// Finds the smallest unused sequence number among finalized documents only.
-// Draft/pending/deleted numbers get reused.
 function getNextDocNo(
   prefix: string,
   existingDocs: Array<{ docNo: string; status: string }>,
@@ -58,7 +58,6 @@ function getNextDocNo(
   return `${prefix}-${yymm}-${String(next).padStart(3, '0')}`;
 }
 
-// Finalized statuses per document type
 const QTE_FINALIZED = ['sent', 'approved', 'rejected'];
 const INV_FINALIZED = ['sent', 'paid', 'partial', 'overdue'];
 const RCP_FINALIZED = ['cleared'];
@@ -81,6 +80,7 @@ export default function App() {
       if (found) return found;
     }
     return null;
+  }); // <-- Fixed missing closing bracket here
   const [activeDeptId, setActiveDeptId] = useState<DepartmentId>('all');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
@@ -111,9 +111,26 @@ export default function App() {
   const [viewingDoc, setViewingDoc] = useState<Invoice | Quotation | null>(null);
   const [viewType, setViewType] = useState<'invoice' | 'quotation'>('invoice');
 
-  // ★ Receipt view modal state
   const [isReceiptViewOpen, setIsReceiptViewOpen] = useState(false);
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
+
+  // ★ FIREBASE REAL-TIME SYNC ★
+  useEffect(() => {
+    const dataRef = ref(db, 'erpData');
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        if (data.users) setUsers(data.users);
+        if (data.companySettings) setCompanySettings(data.companySettings);
+        if (data.vendors) setVendors(data.vendors);
+        if (data.quotations) setQuotations(data.quotations);
+        if (data.invoices) setInvoices(data.invoices);
+        if (data.receipts) setReceipts(data.receipts);
+        if (data.transactions) setTransactions(data.transactions);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const contextVendors = useMemo(() => {
     if (activeDeptId === 'all') return vendors;
@@ -145,15 +162,18 @@ export default function App() {
     showToast('Logged out securely.', 'info');
   };
 
-  const handleSaveAll = () => {
-    Storage.setUsers(users);
-    Storage.setCompanySettings(companySettings);
-    Storage.setVendors(vendors);
-    Storage.setQuotations(quotations);
-    Storage.setInvoices(invoices);
-    Storage.setReceipts(receipts);
-    Storage.setTransactions(transactions);
-    showToast('All data saved successfully!');
+  // ★ CLOUD SAVE BUTTON ★
+  const handleSaveAll = async () => {
+    const dataToSave = {
+      users, companySettings, vendors, quotations, invoices, receipts, transactions
+    };
+    try {
+      await set(ref(db, 'erpData'), dataToSave);
+      showToast('All data saved & synced to cloud!');
+    } catch (err) {
+      console.error(err);
+      showToast('Sync failed. Check internet connection.', 'info');
+    }
   };
 
   // Vendor Handlers
@@ -315,7 +335,6 @@ export default function App() {
     }
   };
 
-  // ★ View Receipt handler
   const handleViewReceipt = (r: Receipt) => {
     setViewingReceipt(r);
     setIsReceiptViewOpen(true);
@@ -330,6 +349,7 @@ export default function App() {
     if (data.receipts) setReceipts(data.receipts);
     if (data.transactions) setTransactions(data.transactions);
     showToast('Full system backup imported successfully!');
+    setTimeout(handleSaveAll, 200);
   };
 
   const handleResetFactoryData = () => {
@@ -342,6 +362,7 @@ export default function App() {
     setReceipts(Storage.getReceipts());
     setTransactions(Storage.getTransactions());
     showToast('Data reset to factory seed values.', 'info');
+    setTimeout(handleSaveAll, 200);
   };
 
   const handleSelectDepartment = (id: DepartmentId) => {
@@ -462,7 +483,6 @@ export default function App() {
       <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={(s) => setCompanySettings(s)} />
       <ViewInvoiceModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} document={viewingDoc} type={viewType} companySettings={companySettings} />
 
-      {/* ★ Receipt View Modal ★ */}
       <ViewReceiptModal
         isOpen={isReceiptViewOpen}
         onClose={() => setIsReceiptViewOpen(false)}
