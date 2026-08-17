@@ -2,15 +2,8 @@
 
 /* ==========================================================
    THULIR F&A ERP — Professional Finance Theme
-   Pure CSS Override — Full Width
+   Full Width — Forced Layout Overrides
    ========================================================== */
-
-/* ──────────────────────────────────────────────────────────
-   UNLAYERED :root
-   Unlayered CSS ALWAYS beats Tailwind's layered output
-   in the cascade. This overrides every --color-* token
-   that Tailwind utility classes reference internally.
-   ────────────────────────────────────────────────────────── */
 
 :root {
 
@@ -23,7 +16,7 @@
   --finance-warning: #d97706;
   --finance-danger: #dc2626;
 
-  --finance-bg: #626163;
+  --finance-bg: #f8fafc;
   --finance-surface: #ffffff;
   --finance-bg-subtle: #f1f5f9;
   --finance-bg-muted: #e2e8f0;
@@ -56,8 +49,6 @@
      TAILWIND COLOR TOKEN OVERRIDES
      ══════════════════════════════════════════════════════ */
 
-  /* ── SLATE ───────────────────────────────────────────── */
-
   --color-slate-50:  #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -69,8 +60,6 @@
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
-
-  /* ── GRAY ────────────────────────────────────────────── */
 
   --color-gray-50:  #f8fafc;
   --color-gray-100: #f1f5f9;
@@ -84,8 +73,6 @@
   --color-gray-900: #0f172a;
   --color-gray-950: #020617;
 
-  /* ── ZINC ────────────────────────────────────────────── */
-
   --color-zinc-50:  #f8fafc;
   --color-zinc-100: #f1f5f9;
   --color-zinc-200: #e2e8f0;
@@ -97,8 +84,6 @@
   --color-zinc-800: #1e293b;
   --color-zinc-900: #0f172a;
   --color-zinc-950: #020617;
-
-  /* ── NEUTRAL ─────────────────────────────────────────── */
 
   --color-neutral-50:  #f8fafc;
   --color-neutral-100: #f1f5f9;
@@ -112,8 +97,6 @@
   --color-neutral-900: #0f172a;
   --color-neutral-950: #020617;
 
-  /* ── STONE ───────────────────────────────────────────── */
-
   --color-stone-50:  #fafaf9;
   --color-stone-100: #f5f5f4;
   --color-stone-200: #e7e5e4;
@@ -125,8 +108,6 @@
   --color-stone-800: #292524;
   --color-stone-900: #1c1917;
   --color-stone-950: #0c0a09;
-
-  /* ── BLUE ────────────────────────────────────────────── */
 
   --color-blue-50:  #eff6ff;
   --color-blue-100: #dbeafe;
@@ -140,8 +121,6 @@
   --color-blue-900: #1e3a8a;
   --color-blue-950: #172554;
 
-  /* ── SKY ─────────────────────────────────────────────── */
-
   --color-sky-50:  #eff6ff;
   --color-sky-100: #dbeafe;
   --color-sky-200: #bfdbfe;
@@ -153,8 +132,6 @@
   --color-sky-800: #1e40af;
   --color-sky-900: #1e3a8a;
   --color-sky-950: #172554;
-
-  /* ── INDIGO ──────────────────────────────────────────── */
 
   --color-indigo-50:  #eef2ff;
   --color-indigo-100: #e0e7ff;
@@ -168,8 +145,6 @@
   --color-indigo-900: #1e3a8a;
   --color-indigo-950: #172554;
 
-  /* ── CYAN ────────────────────────────────────────────── */
-
   --color-cyan-50:  #eff6ff;
   --color-cyan-100: #dbeafe;
   --color-cyan-200: #bfdbfe;
@@ -181,8 +156,6 @@
   --color-cyan-800: #1e40af;
   --color-cyan-900: #1e3a8a;
   --color-cyan-950: #172554;
-
-  /* ── VIOLET ──────────────────────────────────────────── */
 
   --color-violet-50:  #eff6ff;
   --color-violet-100: #e0e7ff;
@@ -196,8 +169,6 @@
   --color-violet-900: #1e3a8a;
   --color-violet-950: #172554;
 
-  /* ── PURPLE ──────────────────────────────────────────── */
-
   --color-purple-50:  #eff6ff;
   --color-purple-100: #e0e7ff;
   --color-purple-200: #c7d2fe;
@@ -209,8 +180,6 @@
   --color-purple-800: #1e40af;
   --color-purple-900: #1e3a8a;
   --color-purple-950: #172554;
-
-  /* ── EMERALD ─────────────────────────────────────────── */
 
   --color-emerald-50:  #ecfdf5;
   --color-emerald-100: #d1fae5;
@@ -224,8 +193,6 @@
   --color-emerald-900: #064e3b;
   --color-emerald-950: #022c22;
 
-  /* ── GREEN ───────────────────────────────────────────── */
-
   --color-green-50:  #ecfdf5;
   --color-green-100: #d1fae5;
   --color-green-200: #a7f3d0;
@@ -237,8 +204,6 @@
   --color-green-800: #065f46;
   --color-green-900: #064e3b;
   --color-green-950: #022c22;
-
-  /* ── TEAL ────────────────────────────────────────────── */
 
   --color-teal-50:  #ecfdf5;
   --color-teal-100: #d1fae5;
@@ -252,8 +217,6 @@
   --color-teal-900: #064e3b;
   --color-teal-950: #022c22;
 
-  /* ── LIME ────────────────────────────────────────────── */
-
   --color-lime-50:  #ecfdf5;
   --color-lime-100: #d1fae5;
   --color-lime-200: #a7f3d0;
@@ -265,8 +228,6 @@
   --color-lime-800: #065f46;
   --color-lime-900: #064e3b;
   --color-lime-950: #022c22;
-
-  /* ── RED ─────────────────────────────────────────────── */
 
   --color-red-50:  #fef2f2;
   --color-red-100: #fee2e2;
@@ -280,8 +241,6 @@
   --color-red-900: #7f1d1d;
   --color-red-950: #450a0a;
 
-  /* ── ROSE ────────────────────────────────────────────── */
-
   --color-rose-50:  #fef2f2;
   --color-rose-100: #fee2e2;
   --color-rose-200: #fecaca;
@@ -293,8 +252,6 @@
   --color-rose-800: #991b1b;
   --color-rose-900: #7f1d1d;
   --color-rose-950: #450a0a;
-
-  /* ── PINK ────────────────────────────────────────────── */
 
   --color-pink-50:  #fef2f2;
   --color-pink-100: #fee2e2;
@@ -308,8 +265,6 @@
   --color-pink-900: #7f1d1d;
   --color-pink-950: #450a0a;
 
-  /* ── FUCHSIA ─────────────────────────────────────────── */
-
   --color-fuchsia-50:  #fef2f2;
   --color-fuchsia-100: #fee2e2;
   --color-fuchsia-200: #fecaca;
@@ -321,8 +276,6 @@
   --color-fuchsia-800: #991b1b;
   --color-fuchsia-900: #7f1d1d;
   --color-fuchsia-950: #450a0a;
-
-  /* ── AMBER ───────────────────────────────────────────── */
 
   --color-amber-50:  #fffbeb;
   --color-amber-100: #fef3c7;
@@ -336,8 +289,6 @@
   --color-amber-900: #78350f;
   --color-amber-950: #451a03;
 
-  /* ── YELLOW ──────────────────────────────────────────── */
-
   --color-yellow-50:  #fffbeb;
   --color-yellow-100: #fef3c7;
   --color-yellow-200: #fde68a;
@@ -349,8 +300,6 @@
   --color-yellow-800: #92400e;
   --color-yellow-900: #78350f;
   --color-yellow-950: #451a03;
-
-  /* ── ORANGE ──────────────────────────────────────────── */
 
   --color-orange-50:  #fffbeb;
   --color-orange-100: #fef3c7;
@@ -367,7 +316,43 @@
 
 
 /* ──────────────────────────────────────────────────────────
-   EXPLICIT EDGE-CASE OVERRIDES
+   KILL ALL TAILWIDTH WIDTH CONSTRAINTS
+   These must be unlayered + !important to defeat any
+   max-w-*, mx-auto, container, w-* in the TSX classes
+   ────────────────────────────────────────────────────────── */
+
+.max-w-7xl,
+.max-w-6xl,
+.max-w-5xl,
+.max-w-4xl,
+.max-w-3xl,
+.max-w-2xl,
+.max-w-xl,
+.max-w-lg,
+.max-w-md,
+.max-w-sm,
+.max-w-xs,
+.max-w-prose,
+.max-w-screen-2xl,
+.max-w-screen-xl,
+.max-w-screen-lg,
+.max-w-screen-md,
+.max-w-screen-sm,
+.container {
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
+
+.mx-auto {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   EDGE-CASE COLOR OVERRIDES
    ────────────────────────────────────────────────────────── */
 
 .bg-white    { background-color: var(--finance-surface) !important; }
@@ -381,7 +366,7 @@
 
 
 /* ──────────────────────────────────────────────────────────
-   GLOBAL BASE STYLES
+   GLOBAL BASE
    ────────────────────────────────────────────────────────── */
 
 *,
@@ -435,6 +420,7 @@ body {
 .app,
 #root {
   width: 100% !important;
+  max-width: 100% !important;
   min-height: 100vh;
   background-color: var(--finance-bg);
   display: flex;
@@ -448,6 +434,7 @@ body {
 
 .header {
   width: 100% !important;
+  max-width: 100% !important;
   height: 60px;
   background-color: rgba(255, 255, 255, 0.96) !important;
   border-bottom: 1px solid var(--finance-border);
@@ -468,6 +455,7 @@ body {
 
 .nav-bar {
   width: 100% !important;
+  max-width: 100% !important;
   height: 46px;
   background-color: #ffffff !important;
   border-bottom: 1px solid var(--finance-border);
@@ -487,7 +475,10 @@ body {
 
 .main {
   width: 100% !important;
-  padding: 0 32px;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 28px 32px;
   flex: 1;
 }
 
@@ -530,6 +521,7 @@ body {
 
 .hero {
   width: 100% !important;
+  max-width: 100% !important;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
   color: #ffffff !important;
   border-radius: var(--radius-lg);
@@ -580,12 +572,13 @@ body {
 
 
 /* ==========================================================
-   KPI / DEPARTMENT GRID — FULL WIDTH
+   KPI / DEPARTMENT GRID
    ========================================================== */
 
 .kpi-grid,
 .dept-grid {
   width: 100% !important;
+  max-width: 100% !important;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
@@ -711,11 +704,12 @@ body {
 
 
 /* ==========================================================
-   DATA TABLES — FULL WIDTH
+   DATA TABLES
    ========================================================== */
 
 .table-wrap {
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   background-color: var(--finance-surface) !important;
   border: 1px solid var(--finance-border);
   border-radius: var(--radius);
@@ -1021,7 +1015,7 @@ body {
 
 
 /* ==========================================================
-   RESPONSIVE — FULL WIDTH AT ALL BREAKPOINTS
+   RESPONSIVE
    ========================================================== */
 
 @media (max-width: 768px) {
