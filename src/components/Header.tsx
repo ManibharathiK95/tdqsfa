@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <p className="text-xs font-medium text-zinc-300 mt-1">
-                TDQS F&amp;A PORTAL • Financial &amp; Departmental Operations System
+                TDQS F&amp;A PORTAL
               </p>
             </div>
           </div>
