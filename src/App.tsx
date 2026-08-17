@@ -80,7 +80,7 @@ export default function App() {
       if (found) return found;
     }
     return null;
-  }); // <-- Fixed missing closing bracket here
+  }); 
   const [activeDeptId, setActiveDeptId] = useState<DepartmentId>('all');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
@@ -114,22 +114,26 @@ export default function App() {
   const [isReceiptViewOpen, setIsReceiptViewOpen] = useState(false);
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
 
-  // ★ FIREBASE REAL-TIME SYNC ★
+  // ★ SAFE FIREBASE REAL-TIME SYNC ★
   useEffect(() => {
-    const dataRef = ref(db, 'erpData');
-    const unsubscribe = onValue(dataRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        if (data.users) setUsers(data.users);
-        if (data.companySettings) setCompanySettings(data.companySettings);
-        if (data.vendors) setVendors(data.vendors);
-        if (data.quotations) setQuotations(data.quotations);
-        if (data.invoices) setInvoices(data.invoices);
-        if (data.receipts) setReceipts(data.receipts);
-        if (data.transactions) setTransactions(data.transactions);
-      }
-    });
-    return () => unsubscribe();
+    try {
+      const dataRef = ref(db, 'erpData');
+      const unsubscribe = onValue(dataRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (data.users) setUsers(data.users);
+          if (data.companySettings) setCompanySettings(data.companySettings);
+          if (data.vendors) setVendors(data.vendors);
+          if (data.quotations) setQuotations(data.quotations);
+          if (data.invoices) setInvoices(data.invoices);
+          if (data.receipts) setReceipts(data.receipts);
+          if (data.transactions) setTransactions(data.transactions);
+        }
+      });
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Firebase sync offline, using local data:", err);
+    }
   }, []);
 
   const contextVendors = useMemo(() => {
@@ -349,7 +353,6 @@ export default function App() {
     if (data.receipts) setReceipts(data.receipts);
     if (data.transactions) setTransactions(data.transactions);
     showToast('Full system backup imported successfully!');
-    setTimeout(handleSaveAll, 200);
   };
 
   const handleResetFactoryData = () => {
@@ -362,7 +365,6 @@ export default function App() {
     setReceipts(Storage.getReceipts());
     setTransactions(Storage.getTransactions());
     showToast('Data reset to factory seed values.', 'info');
-    setTimeout(handleSaveAll, 200);
   };
 
   const handleSelectDepartment = (id: DepartmentId) => {
