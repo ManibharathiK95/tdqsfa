@@ -229,9 +229,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-black text-white">Department Breakdown</h3>
-            <p className="text-xs font-medium text-zinc-300 mt-0.5">Select any department to open its dedicated accounting ledger.</p>
           </div>
-          <span className="text-xs font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full">4 Active Departments</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
