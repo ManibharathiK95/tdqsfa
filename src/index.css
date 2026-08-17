@@ -486,8 +486,9 @@ body {
    ========================================================== */
 
 .main {
-  width: 100% !important;
-  padding: 28px 32px;
+  max-width: 1560px !important;
+  margin: 0 auto;
+  padding: 0 32px;
   flex: 1;
 }
 
