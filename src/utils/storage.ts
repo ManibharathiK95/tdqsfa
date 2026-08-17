@@ -12,7 +12,7 @@ import {
 import { User, CompanySettings, VendorContractor, Quotation, Invoice, Receipt, Transaction } from '../types';
 
 // ──────────────────────────────────────
-// 1. LOCAL STORAGE KEYS
+// 1. KEYS & HELPERS
 // ──────────────────────────────────────
 
 const USERS_KEY = 'tdqs_users';
@@ -24,7 +24,6 @@ const RECEIPTS_KEY = 'tdqs_receipts';
 const TRANSACTIONS_KEY = 'tdqs_transactions';
 const CURRENT_USER_KEY = 'tdqs_current_user';
 
-// Helper to safely parse JSON
 const parse = <T>(key: string, fallback: T): T => {
   try {
     const raw = localStorage.getItem(key);
@@ -35,8 +34,6 @@ const parse = <T>(key: string, fallback: T): T => {
 };
 
 // ★ SEED DATA LOGIC ★
-// If local storage is completely empty (first load or wipe), 
-// populate it with your default users and data.
 const initializeIfEmpty = () => {
   if (!localStorage.getItem(USERS_KEY)) {
     localStorage.setItem(USERS_KEY, JSON.stringify(INITIAL_USERS));
@@ -49,34 +46,55 @@ const initializeIfEmpty = () => {
   }
 };
 
-// Run seed check immediately when file loads
 initializeIfEmpty();
 
 
 // ──────────────────────────────────────
-// 2. STORAGE OBJECT
+// 2. STORAGE OBJECT (with ultimate failsafes)
 // ──────────────────────────────────────
 
 export const Storage = {
-  getUsers: () => parse<User[]>(USERS_KEY, INITIAL_USERS),
+  getUsers: () => {
+    const u = parse<User[]>(USERS_KEY, []);
+    // ULTIMATE FAILSAFE: If users ever load as empty array, force default users
+    return u.length > 0 ? u : INITIAL_USERS;
+  },
   setUsers: (data: User[]) => localStorage.setItem(USERS_KEY, JSON.stringify(data)),
   
-  getCompanySettings: () => parse<CompanySettings>(COMPANY_KEY, INITIAL_COMPANY_SETTINGS),
+  getCompanySettings: () => {
+    const c = parse<CompanySettings>(COMPANY_KEY, INITIAL_COMPANY_SETTINGS);
+    return c.companyName ? c : INITIAL_COMPANY_SETTINGS;
+  },
   setCompanySettings: (data: CompanySettings) => localStorage.setItem(COMPANY_KEY, JSON.stringify(data)),
   
-  getVendors: () => parse<VendorContractor[]>(VENDORS_KEY, INITIAL_VENDORS),
+  getVendors: () => {
+    const v = parse<VendorContractor[]>(VENDORS_KEY, []);
+    return v.length > 0 ? v : INITIAL_VENDORS;
+  },
   setVendors: (data: VendorContractor[]) => localStorage.setItem(VENDORS_KEY, JSON.stringify(data)),
   
-  getQuotations: () => parse<Quotation[]>(QUOTATIONS_KEY, INITIAL_QUOTATIONS),
+  getQuotations: () => {
+    const q = parse<Quotation[]>(QUOTATIONS_KEY, []);
+    return q.length > 0 ? q : INITIAL_QUOTATIONS;
+  },
   setQuotations: (data: Quotation[]) => localStorage.setItem(QUOTATIONS_KEY, JSON.stringify(data)),
   
-  getInvoices: () => parse<Invoice[]>(INVOICES_KEY, INITIAL_INVOICES),
+  getInvoices: () => {
+    const i = parse<Invoice[]>(INVOICES_KEY, []);
+    return i.length > 0 ? i : INITIAL_INVOICES;
+  },
   setInvoices: (data: Invoice[]) => localStorage.setItem(INVOICES_KEY, JSON.stringify(data)),
   
-  getReceipts: () => parse<Receipt[]>(RECEIPTS_KEY, INITIAL_RECEIPTS),
+  getReceipts: () => {
+    const r = parse<Receipt[]>(RECEIPTS_KEY, []);
+    return r.length > 0 ? r : INITIAL_RECEIPTS;
+  },
   setReceipts: (data: Receipt[]) => localStorage.setItem(RECEIPTS_KEY, JSON.stringify(data)),
   
-  getTransactions: () => parse<Transaction[]>(TRANSACTIONS_KEY, INITIAL_TRANSACTIONS),
+  getTransactions: () => {
+    const t = parse<Transaction[]>(TRANSACTIONS_KEY, []);
+    return t.length > 0 ? t : INITIAL_TRANSACTIONS;
+  },
   setTransactions: (data: Transaction[]) => localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(data)),
 
   getCurrentUserId: () => localStorage.getItem(CURRENT_USER_KEY),
@@ -94,7 +112,6 @@ export const Storage = {
     localStorage.removeItem(RECEIPTS_KEY);
     localStorage.removeItem(TRANSACTIONS_KEY);
     localStorage.removeItem(CURRENT_USER_KEY);
-    // Re-initialize with fresh seed data immediately
     initializeIfEmpty();
   }
 };
