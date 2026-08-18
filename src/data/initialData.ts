@@ -51,7 +51,7 @@ export const INITIAL_USERS: User[] = [
     pin: '1334',
     role: 'admin',
     departmentId: 'all',
-    email: 'admin@thulirqs.com',
+    email: 'admin@thulirdesign-qs.com',
     avatarColor: 'bg-emerald-700',
   },
   {
@@ -60,7 +60,7 @@ export const INITIAL_USERS: User[] = [
     pin: '1111',
     role: 'staff',
     departmentId: 'design',
-    email: 'design@thulirqs.com',
+    email: 'design@thulirdesign-qs.com',
     avatarColor: 'bg-emerald-800',
   },
   {
@@ -69,7 +69,7 @@ export const INITIAL_USERS: User[] = [
     pin: '2222',
     role: 'staff',
     departmentId: 'rebar',
-    email: 'rebar@thulirqs.com',
+    email: 'rebar@thulirdesign-qs.com',
     avatarColor: 'bg-emerald-600',
   },
   {
@@ -78,7 +78,7 @@ export const INITIAL_USERS: User[] = [
     pin: '3333',
     role: 'staff',
     departmentId: 'qs',
-    email: 'qs@thulirqs.com',
+    email: 'qs@thulirdesign-qs.com',
     avatarColor: 'bg-emerald-700',
   },
   {
@@ -87,7 +87,7 @@ export const INITIAL_USERS: User[] = [
     pin: '4444',
     role: 'staff',
     departmentId: 'architecture',
-    email: 'architect@thulirqs.com',
+    email: 'arch@thulirdesign-qs.com',
     avatarColor: 'bg-zinc-800',
   },
 ];
