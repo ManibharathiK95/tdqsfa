@@ -61,7 +61,7 @@ export const INITIAL_USERS: User[] = [
     role: 'staff',
     departmentId: 'design',
     email: 'design@thulirdesign-qs.com',
-    avatarColor: 'bg-emerald-800',
+    avatarColor: 'bg-emerald-700',
   },
   {
     id: 'usr_rbr',
@@ -70,7 +70,7 @@ export const INITIAL_USERS: User[] = [
     role: 'staff',
     departmentId: 'rebar',
     email: 'rebar@thulirdesign-qs.com',
-    avatarColor: 'bg-emerald-600',
+    avatarColor: 'bg-emerald-700',
   },
   {
     id: 'usr_qs',
@@ -88,7 +88,7 @@ export const INITIAL_USERS: User[] = [
     role: 'staff',
     departmentId: 'architecture',
     email: 'arch@thulirdesign-qs.com',
-    avatarColor: 'bg-zinc-800',
+    avatarColor: 'bg-emerald-700',
   },
 ];
 
