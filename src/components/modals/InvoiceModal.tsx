@@ -269,10 +269,10 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             <div className="bg-slate-950 border border-emerald-900/50 rounded-xl p-4 space-y-1.5">
               <p className="text-[10px] font-bold uppercase text-emerald-400 tracking-wider">Bank Details (for AED B2B Transfer)</p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
-                <div className="flex justify-between"><span className="text-slate-400">Bank:</span><span className="text-white font-semibold">{companySettings.bankName}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Account:</span><span className="text-white font-mono">{companySettings.accountNumber}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">IBAN:</span><span className="text-white font-mono text-[11px]">{companySettings.iban}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">SWIFT:</span><span className="text-white font-mono">{companySettings.swiftCode}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Bank:</span><span className="text-white font-semibold">{CompanySettings.bankName}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Account:</span><span className="text-white font-mono">{CompanySettings.accountNumber}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">IBAN:</span><span className="text-white font-mono text-[11px]">{CompanySettings.iban}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">SWIFT:</span><span className="text-white font-mono">{CompanySettings.swiftCode}</span></div>
               </div>
             </div>
           )}
