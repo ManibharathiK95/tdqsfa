@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Quotation, DepartmentId, LineItem, QuotationStatus, CompanySettings, VendorContractor } from '../../types';
+import type { Quotation, DepartmentId, LineItem, QuotationStatus, CompanySettings, VendorContractor } from '../../types';
 import { DEPARTMENTS } from '../../data/initialData';
 import { formatCurrency } from '../../utils/export';
 import { X, FileText, Plus, Trash2 } from 'lucide-react';
