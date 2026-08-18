@@ -26,7 +26,6 @@ import { ViewInvoiceModal } from './components/modals/ViewInvoiceModal';
 import { ViewReceiptModal } from './components/modals/ViewReceiptModal';
 import { CheckCircle } from 'lucide-react';
 
-// ─── Number Reuse Logic ───
 function getNextDocNo(
   prefix: string,
   existingDocs: Array<{ docNo: string; status: string }>,
@@ -114,7 +113,6 @@ export default function App() {
   const [isReceiptViewOpen, setIsReceiptViewOpen] = useState(false);
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
 
-  // ★ SAFE FIREBASE REAL-TIME SYNC ★
   useEffect(() => {
     try {
       const dataRef = ref(db, 'erpData');
@@ -166,7 +164,6 @@ export default function App() {
     showToast('Logged out securely.', 'info');
   };
 
-  // ★ CLOUD SAVE BUTTON ★
   const handleSaveAll = async () => {
     const dataToSave = {
       users, companySettings, vendors, quotations, invoices, receipts, transactions
@@ -180,7 +177,6 @@ export default function App() {
     }
   };
 
-  // Vendor Handlers
   const handleSaveVendor = (vendorData: Partial<VendorContractor>) => {
     let updated: VendorContractor[];
     if (editingVendor) {
@@ -200,7 +196,6 @@ export default function App() {
     }
   };
 
-  // Quotation Handlers
   const handleSaveQuotation = (qData: Partial<Quotation>) => {
     let updated: Quotation[];
     if (editingQuotation) {
@@ -248,7 +243,6 @@ export default function App() {
     showToast(`Quotation ${q.quotationNo} converted to Invoice ${newInvoice.invoiceNo}!`);
   };
 
-  // Invoice Handlers
   const handleSaveInvoice = (invData: Partial<Invoice>) => {
     const data = { ...invData };
     if (data.paidAmount && data.totalAmount && data.paidAmount > data.totalAmount) {
@@ -273,7 +267,6 @@ export default function App() {
     }
   };
 
-  // Receipt Handlers
   const handleSaveReceipt = (recData: Partial<Receipt>) => {
     const newReceipt = recData as Receipt;
     setReceipts([newReceipt, ...receipts]);
@@ -326,7 +319,6 @@ export default function App() {
     }
   };
 
-  // Transaction Handlers
   const handleSaveTransaction = (txData: Partial<Transaction>) => {
     setTransactions([txData as Transaction, ...transactions]);
     showToast('Transaction recorded into ledger.');
@@ -482,17 +474,9 @@ export default function App() {
       <InvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleSaveInvoice} initialData={editingInvoice} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedInvNo} />
       <ReceiptModal isOpen={isReceiptModalOpen} onClose={() => setIsReceiptModalOpen(false)} onSave={handleSaveReceipt} defaultDeptId={activeDeptId} initialInvoice={receiptInvoice} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedRcptNo} />
       <TransactionModal isOpen={isTransactionModalOpen} onClose={() => setIsTransactionModalOpen(false)} onSave={handleSaveTransaction} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} />
-      <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={(s) => setCompanySettings(s)} />
+      <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={(s) => setCompanySettings(s)} onSaveAll={handleSaveAll} />
       <ViewInvoiceModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} document={viewingDoc} type={viewType} companySettings={companySettings} />
-
-      <ViewReceiptModal
-        isOpen={isReceiptViewOpen}
-        onClose={() => setIsReceiptViewOpen(false)}
-        receipt={viewingReceipt}
-        invoices={invoices}
-        companySettings={companySettings}
-        onSaveAll={handleSaveAll}
-      />
+      <ViewReceiptModal isOpen={isReceiptViewOpen} onClose={() => setIsReceiptViewOpen(false)} receipt={viewingReceipt} invoices={invoices} companySettings={companySettings} />
     </div>
   );
 }
