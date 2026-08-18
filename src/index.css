@@ -1,14 +1,5 @@
 @import "tailwindcss";
-
-/* ==========================================================
-   THULIR F&A ERP — Professional Finance Theme
-   Full Width — Forced Layout Overrides
-   ========================================================== */
-
 :root {
-
-  /* ── Finance Design Tokens ────────────────────────────── */
-
   --finance-primary: #0f172a;
   --finance-primary-hover: #1e293b;
   --finance-accent: #2563eb;
