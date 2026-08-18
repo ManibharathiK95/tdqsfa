@@ -95,17 +95,16 @@ export const INITIAL_USERS: User[] = [
 export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   companyName: 'Thulir Design & QS Services FZE',
   tagline: 'Precision Architectural Design, Quantity Surveying & Engineering Detailing',
-  email: 'info@thulirdesignqs.com',
+  email: 'info@thulirdesign-qs.com',
   phone: '+971 55 667 6720',
   address: 'Sharjah Freezone, Sharjah, UAE',
   taxId: 'Nill',
   currencySymbol: 'AED',
   currencyCode: 'AED',
   defaultTaxRate: 0,
-  bankName: 'Emirates NBD',
-  accountNumber: '0345678901',
-  iban: 'AE07 0331 2345 6789 0123 456',
-  swiftCode: 'EBILAEAD',
+  bankName: 'RAK Bank',
+  accountNumber: '0573724435001',
+  iban: 'AE55 0400 0005 7372 4435 001',
 };
 
 export const INITIAL_VENDORS: VendorContractor[] = [
