@@ -259,20 +259,17 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-slate-400 font-semibold mb-1">Bank Name</label>
-                  <input type="text" value={settings.bankName || ''} onChange={(e) => setSettings({ ...settings, bankName: e.target.value })} placeholder="e.g. Emirates NBD" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white" />
+                  <input type="text" value={settings.bankName || ''} onChange={(e) => setSettings({ ...settings, bankName: e.target.value })} placeholder="RAK Bank" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white" />
                 </div>
                 <div>
                   <label className="block text-slate-400 font-semibold mb-1">Account Number</label>
-                  <input type="text" value={settings.accountNumber || ''} onChange={(e) => setSettings({ ...settings, accountNumber: e.target.value })} placeholder="e.g. 0345678901" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+                  <input type="text" value={settings.accountNumber || ''} onChange={(e) => setSettings({ ...settings, accountNumber: e.target.value })} placeholder="0573724435001" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
                 </div>
                 <div>
                   <label className="block text-slate-400 font-semibold mb-1">IBAN</label>
-                  <input type="text" value={settings.iban || ''} onChange={(e) => setSettings({ ...settings, iban: e.target.value })} placeholder="e.g. AE07 0331 2345 6789 0123 456" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+                  <input type="text" value={settings.iban || ''} onChange={(e) => setSettings({ ...settings, iban: e.target.value })} placeholder="AE55 0400 0005 7372 4435 001" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
                 </div>
                 <div>
-                  <label className="block text-slate-400 font-semibold mb-1">SWIFT Code</label>
-                  <input type="text" value={settings.swiftCode || ''} onChange={(e) => setSettings({ ...settings, swiftCode: e.target.value })} placeholder="e.g. EBILAEAD" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
-                </div>
               </div>
             </div>
 
