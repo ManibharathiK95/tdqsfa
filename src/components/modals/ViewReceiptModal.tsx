@@ -15,7 +15,7 @@ interface ViewReceiptModalProps {
 export const ViewReceiptModal: React.FC<ViewReceiptModalProps> = ({
   isOpen, onClose, receipt, invoices, companySettings,
 }) => {
-  if (! isOpen || !receipt) return null;
+  if (!isOpen || !receipt) return null;
 
   const linkedInvoice = receipt.invoiceNo
     ? invoices.find((inv) => inv.invoiceNo === receipt.invoiceNo || inv.id === receipt.invoiceNo)
@@ -129,7 +129,7 @@ export const ViewReceiptModal: React.FC<ViewReceiptModalProps> = ({
             )}
           </div>
 
-          {/* Bank Details */}
+          {/* Bank Details — Uses Admin Settings (RAK Bank) */}
           {hasBankDetails && (
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
               <p className="text-[10px] font-bold uppercase text-slate-500 tracking-wider mb-2">Bank Details (AED B2B Transfer)</p>
@@ -151,7 +151,7 @@ export const ViewReceiptModal: React.FC<ViewReceiptModalProps> = ({
           )}
         </div>
 
-        {/* Disclaimer — page bottom in print, content end in preview */}
+        {/* Disclaimer */}
         <div className="print-disclaimer border-t border-zinc-200 mt-4 pt-3 text-center text-zinc-500">
           <p className="text-xs font-semibold italic text-slate-400">{disclaimer}</p>
         </div>
