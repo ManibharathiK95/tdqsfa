@@ -491,6 +491,7 @@ export default function App() {
         receipt={viewingReceipt}
         invoices={invoices}
         companySettings={companySettings}
+        onSaveAll={handleSaveAll}
       />
     </div>
   );
