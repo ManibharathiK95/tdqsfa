@@ -1,5 +1,5 @@
 import React from 'react';
-import { Invoice, Quotation, CompanySettings } from '../../types';
+import type { Invoice, Quotation, CompanySettings } from '../../types';
 import { formatCurrency } from '../../utils/export';
 import { CompanyLogo } from '../CompanyLogo';
 import { X, Printer } from 'lucide-react';
@@ -141,6 +141,7 @@ export const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 <div className="flex justify-between"><span className="text-slate-500">Bank:</span><span className="text-slate-900 font-semibold">{companySettings.bankName}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Account:</span><span className="text-slate-900 font-mono">{companySettings.accountNumber}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">IBAN:</span><span className="text-slate-900 font-mono">{companySettings.iban}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">SWIFT:</span><span className="text-slate-900 font-mono">{companySettings.swiftCode}</span></div>
               </div>
             </div>
           )}
