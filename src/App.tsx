@@ -164,6 +164,16 @@ export default function App() {
     showToast('Logged out securely.', 'info');
   };
 
+  const handleSaveCompanySettings = async (newSettings: CompanySettings) => {
+    setCompanySettings(newSettings); // Update local state immediately
+    
+    // Immediately push to Firebase so it doesn't overwrite us
+    try {
+      await set(ref(db, 'erpData/companySettings'), newSettings);
+    } catch (err) {
+      console.error("Failed to sync company settings to cloud", err);
+    }
+  };
   const handleSaveAll = async () => {
     const dataToSave = {
       users, companySettings, vendors, quotations, invoices, receipts, transactions
@@ -474,7 +484,7 @@ export default function App() {
       <InvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleSaveInvoice} initialData={editingInvoice} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedInvNo} />
       <ReceiptModal isOpen={isReceiptModalOpen} onClose={() => setIsReceiptModalOpen(false)} onSave={handleSaveReceipt} defaultDeptId={activeDeptId} initialInvoice={receiptInvoice} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedRcptNo} />
       <TransactionModal isOpen={isTransactionModalOpen} onClose={() => setIsTransactionModalOpen(false)} onSave={handleSaveTransaction} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} />
-      <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={(s) => setCompanySettings(s)} onSaveAll={handleSaveAll} />
+      <AdminSettingsModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} users={users} onSaveUsers={(u) => setUsers(u)} companySettings={companySettings} onSaveCompanySettings={handleSaveCompanySettings} onSaveAll={handleSaveAll} />
       <ViewInvoiceModal isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} document={viewingDoc} type={viewType} companySettings={companySettings} />
       <ViewReceiptModal isOpen={isReceiptViewOpen} onClose={() => setIsReceiptViewOpen(false)} receipt={viewingReceipt} invoices={invoices} companySettings={companySettings} />
     </div>
