@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, CompanySettings, DepartmentId } from '../../types';
 import { DEPARTMENTS } from '../../data/initialData';
-import { X, ShieldCheck, KeyRound, UserPlus, Trash2, Building2, Save } from 'lucide-react';
+import { X, ShieldCheck, KeyRound, UserPlus, Trash2, Building2, Save, Cloud } from 'lucide-react';
 
 interface AdminSettingsModalProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface AdminSettingsModalProps {
   onSaveUsers: (users: User[]) => void;
   companySettings: CompanySettings;
   onSaveCompanySettings: (settings: CompanySettings) => void;
+  onSaveAll: () => void; // ★ Added for Firebase Cloud Sync
 }
 
 export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
@@ -19,10 +20,12 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
   onSaveUsers,
   companySettings,
   onSaveCompanySettings,
+  onSaveAll,
 }) => {
   const [activeTab, setActiveTab] = useState<'users' | 'company'>('users');
   const [userList, setUserList] = useState<User[]>(users);
   const [settings, setSettings] = useState<CompanySettings>(companySettings);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const [newName, setNewName] = useState('');
   const [newPin, setNewPin] = useState('');
@@ -75,14 +78,47 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
     onSaveUsers(updated);
   };
 
-  const handleSaveAllUsers = () => {
+  // ★ CLOUD SAVE for Users
+  const handleSaveAllUsers = async () => {
+    setIsSyncing(true);
     onSaveUsers(userList);
+    try {
+      await onSaveAll();
+      const hint = document.getElementById('user-save-hint');
+      if (hint) {
+        hint.textContent = '✓ Synced to Cloud!';
+        hint.className = 'text-xs text-emerald-400 font-bold';
+        setTimeout(() => {
+          hint.textContent = '';
+          hint.className = 'text-xs text-slate-500';
+        }, 2500);
+      }
+    } catch (err) {
+      alert('Cloud sync failed. Check internet.');
+    }
+    setIsSyncing(false);
   };
 
-  const handleSaveCompany = (e: React.FormEvent) => {
+  // ★ CLOUD SAVE for Company
+  const handleSaveCompany = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSyncing(true);
     onSaveCompanySettings(settings);
-    alert('Company & Financial Settings updated successfully!');
+    try {
+      await onSaveAll();
+      const hint = document.getElementById('admin-save-hint');
+      if (hint) {
+        hint.textContent = '✓ Synced to Cloud!';
+        hint.className = 'text-xs text-emerald-400 font-bold';
+        setTimeout(() => {
+          hint.textContent = '';
+          hint.className = 'text-xs text-slate-500';
+        }, 2500);
+      }
+    } catch (err) {
+      alert('Cloud sync failed. Check internet.');
+    }
+    setIsSyncing(false);
   };
 
   return (
@@ -129,22 +165,12 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-xs font-bold uppercase text-slate-300">Current Users & Security PINs</label>
                 <button
-                  onClick={() => {
-                    handleSaveAllUsers();
-                    const hint = document.getElementById('user-save-hint');
-                    if (hint) {
-                      hint.textContent = '✓ PINs Saved!';
-                      hint.className = 'text-xs text-emerald-400 font-bold';
-                      setTimeout(() => {
-                        hint.textContent = '';
-                        hint.className = 'text-xs text-slate-500';
-                      }, 2500);
-                    }
-                  }}
-                  className="flex items-center space-x-1 text-xs font-bold text-emerald-400 hover:underline"
+                  onClick={handleSaveAllUsers}
+                  disabled={isSyncing}
+                  className="flex items-center space-x-1.5 text-xs font-bold text-emerald-400 hover:underline disabled:opacity-50"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Save PIN Updates</span>
+                  <Cloud className={`w-3.5 h-3.5 ${isSyncing ? 'animate-pulse' : ''}`} />
+                  <span>{isSyncing ? 'Syncing...' : 'Save & Sync to Cloud'}</span>
                 </button>
                 <span id="user-save-hint" className="text-xs text-slate-500"></span>
               </div>
@@ -270,28 +296,21 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                   <input type="text" value={settings.iban || ''} onChange={(e) => setSettings({ ...settings, iban: e.target.value })} placeholder="AE55 0400 0005 7372 4435 001" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
                 </div>
                 <div>
+                  <label className="block text-slate-400 font-semibold mb-1">SWIFT Code</label>
+                  <input type="text" value={settings.swiftCode || ''} onChange={(e) => setSettings({ ...settings, swiftCode: e.target.value })} placeholder="EBILAEAD" className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
+                </div>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-              <span id="admin-save-hint" className="text-xs text-slate-500">Changes are saved to local storage.</span>
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-end space-x-3">
+              <span id="admin-save-hint" className="text-xs text-slate-500"></span>
               <button
                 type="submit"
-                onClick={() => {
-                  // Show inline "Saved!" feedback
-                  const hint = document.getElementById('admin-save-hint');
-                  if (hint) {
-                    hint.textContent = '✓ Saved!';
-                    hint.className = 'text-xs text-emerald-400 font-bold';
-                    setTimeout(() => {
-                      hint.textContent = 'Changes are saved to local storage.';
-                      hint.className = 'text-xs text-slate-500';
-                    }, 2500);
-                  }
-                }}
-                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-all"
+                disabled={isSyncing}
+                className="flex items-center space-x-1.5 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50"
               >
-                Save Settings
+                <Cloud className={`w-4 h-4 ${isSyncing ? 'animate-pulse' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Save & Sync to Cloud'}</span>
               </button>
             </div>
           </form>
