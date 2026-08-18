@@ -15,7 +15,7 @@ interface ViewReceiptModalProps {
 export const ViewReceiptModal: React.FC<ViewReceiptModalProps> = ({
   isOpen, onClose, receipt, invoices, companySettings,
 }) => {
-  if (!isOpen || !receipt) return null;
+  if (! isOpen || !receipt) return null;
 
   const linkedInvoice = receipt.invoiceNo
     ? invoices.find((inv) => inv.invoiceNo === receipt.invoiceNo || inv.id === receipt.invoiceNo)
