@@ -105,8 +105,7 @@ export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   bankName: 'RAK Bank',
   accountNumber: '0573724435001',
   iban: 'AE55 0400 0005 7372 4435 001',
-  swiftCode: 'EBILAEAD',
-};
+  };
 
 export const INITIAL_VENDORS: VendorContractor[] = [];
 
