@@ -91,6 +91,7 @@ export const INITIAL_USERS: User[] = [
     avatarColor: 'bg-emerald-700',
   },
 ];
+
 export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   companyName: 'Thulir Design & QS Services FZE',
   tagline: 'Precision Architectural Design, Quantity Surveying & Engineering Detailing',
@@ -104,7 +105,8 @@ export const INITIAL_COMPANY_SETTINGS: CompanySettings = {
   bankName: 'RAK Bank',
   accountNumber: '0573724435001',
   iban: 'AE55 0400 0005 7372 4435 001',
-},
+  swiftCode: 'EBILAEAD',
+};
 
 export const INITIAL_VENDORS: VendorContractor[] = [];
 
@@ -114,5 +116,4 @@ export const INITIAL_INVOICES: Invoice[] = [];
 
 export const INITIAL_RECEIPTS: Receipt[] = [];
 
-// Only manual expense transactions — income derives from incoming receipts
 export const INITIAL_TRANSACTIONS: Transaction[] = [];
