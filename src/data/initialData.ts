@@ -15,7 +15,7 @@ export const DEPARTMENTS: DepartmentInfo[] = [
     name: 'Design Department',
     code: 'DES',
     description: 'Structural engineering design, 3D modeling, and calculation analysis.',
-    iconName: 'Blueprint',
+    iconName: 'file-blueprint',
     accentColor: 'blue',
   },
   {
