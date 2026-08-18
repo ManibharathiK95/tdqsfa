@@ -207,7 +207,6 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
               <label className="block text-slate-400 font-semibold mb-1">Company Name</label>
               <input type="text" required value={settings.companyName} onChange={(e) => setSettings({ ...settings, companyName: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold" />
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1">Currency Symbol</label>
@@ -218,7 +217,6 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                 <input type="number" required value={settings.defaultTaxRate} onChange={(e) => setSettings({ ...settings, defaultTaxRate: parseFloat(e.target.value) || 0 })} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-slate-400 font-semibold mb-1">Company Email</label>
@@ -229,7 +227,6 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                 <input type="text" value={settings.taxId} onChange={(e) => setSettings({ ...settings, taxId: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono" />
               </div>
             </div>
-
             <div className="pt-4 border-t border-slate-800">
               <p className="text-[11px] font-bold uppercase text-emerald-400 tracking-wider mb-3">Bank Details (AED B2B Transfer)</p>
               <div className="grid grid-cols-2 gap-3">
@@ -251,7 +248,6 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
                 </div>
               </div>
             </div>
-
             <div className="pt-3 border-t border-slate-800 flex items-center justify-end space-x-3">
               <span id="admin-save-hint" className="text-xs text-slate-500"></span>
               <button type="submit" disabled={isSyncing} className="flex items-center space-x-1.5 px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50">
