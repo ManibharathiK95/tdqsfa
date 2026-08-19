@@ -68,7 +68,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ users, onLoginSuccess }) => 
       <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-emerald-800/15 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md bg-zinc-950 border border-zinc-800/80 rounded-2xl shadow-2xl shadow-emerald-950/20 p-6 sm:p-8 relative z-10">
+      <div className="w-auto bg-zinc-950 border border-zinc-800/80 rounded-2xl shadow-2xl shadow-emerald-950/20 p-6 sm:p-8 relative z-10">
         {/* Header Branding */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-3">
