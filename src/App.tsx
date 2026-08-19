@@ -57,9 +57,25 @@ function getNextDocNo(
   return `${prefix}-${yymm}-${String(next).padStart(3, '0')}`;
 }
 
-const QTE_FINALIZED = ['sent', 'approved', 'rejected'];
+const QTE_FINALIZED = ['sent', 'approved', 'rejected', 'modified', 'voided'];
 const INV_FINALIZED = ['sent', 'paid', 'partial', 'overdue'];
 const RCP_FINALIZED = ['cleared'];
+
+function getNextModifiedNo(quotationNo: string, allQuotations: Quotation[]): string {
+  const rootNo = quotationNo.replace(/\.\d+$/, '');
+  const versions = allQuotations.filter(q =>
+    q.quotationNo === rootNo || q.quotationNo.startsWith(rootNo + '.')
+  );
+  let maxVer = 0;
+  for (const v of versions) {
+    if (v.quotationNo.includes('.')) {
+      const suffix = v.quotationNo.split('.').pop();
+      const num = parseInt(suffix!, 10);
+      if (!isNaN(num)) maxVer = Math.max(maxVer, num);
+    }
+  }
+  return `${rootNo}.${String(maxVer + 1).padStart(2, '0')}`;
+}
 
 export default function App() {
   const ignoreCloudUpdate = useRef(false); // <-- ADD THIS SHIELD
@@ -225,6 +241,41 @@ export default function App() {
       showToast('New quotation created.');
     }
     setQuotations(updated);
+  };
+
+    const handleSaveModifiedQuotation = (qData: Partial<Quotation>) => {
+    if (!editingQuotation) return;
+    const newNo = getNextModifiedNo(editingQuotation.quotationNo, quotations);
+    const rootId = editingQuotation.parentQuotationId || editingQuotation.id;
+    const rootQuote = quotations.find(q => q.id === rootId);
+    const rootNo = rootQuote ? rootQuote.quotationNo.replace(/\.\d+$/, '') : editingQuotation.quotationNo.replace(/\.\d+$/, '');
+    const newQuote: Quotation = {
+      ...editingQuotation,
+      ...qData,
+      id: `qte_mod_${Date.now()}`,
+      quotationNo: newNo,
+      status: qData.status || 'draft',
+      parentQuotationId: rootId,
+      isModifiedVersion: true,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    const updated = quotations.map(q => {
+      const qRootNo = q.quotationNo.replace(/\.\d+$/, '');
+      if (qRootNo === rootNo && q.status !== 'voided') {
+        return { ...q, status: 'voided' as const };
+      }
+      return q;
+    });
+    setQuotations([newQuote, ...updated]);
+    showToast(`Modified version ${newNo} created.`);
+  };
+
+  const handleSavePurchaseOrder = (quotationId: string, poNo: string, poDate: string) => {
+    const updated = quotations.map(q =>
+      q.id === quotationId ? { ...q, purchaseOrderNo: poNo, purchaseOrderDate: poDate } : q
+    );
+    setQuotations(updated);
+    showToast('Purchase order saved.');
   };
 
   const handleDeleteQuotation = (qId: string) => {
@@ -484,6 +535,8 @@ export default function App() {
             onDeleteTransaction={handleDeleteTransaction}
             onImportFullBackup={handleImportFullBackup}
             onResetFactoryData={handleResetFactoryData}
+            onSaveModifiedQuotation={handleSaveModifiedQuotation}
+            onSavePurchaseOrder={handleSavePurchaseOrder}
           />
         )}
       </main>
