@@ -14,9 +14,9 @@ export type Role = 'admin' | 'staff';
 export interface User {
   id: string;
   name: string;
-  pin: string; // 4-digit pin
+  pin: string;
   role: Role;
-  departmentId: DepartmentId; // 'all' for admin
+  departmentId: DepartmentId;
   email: string;
   avatarColor: string;
 }
@@ -52,7 +52,8 @@ export interface LineItem {
   amount: number;
 }
 
-export type QuotationStatus = 'draft' | 'sent' | 'approved' | 'rejected';
+// ★ ADDED 'modified' | 'voided' ★
+export type QuotationStatus = 'draft' | 'sent' | 'approved' | 'rejected' | 'modified' | 'voided';
 
 export interface Quotation {
   id: string;
@@ -73,6 +74,12 @@ export interface Quotation {
   notes?: string;
   terms?: string;
   createdAt: string;
+  // ★ NEW OPTIONAL FIELDS — safe for existing data ★
+  parentQuotationId?: string;
+  isModifiedVersion?: boolean;
+  modifiedCount?: number;
+  purchaseOrderNo?: string;
+  purchaseOrderDate?: string;
 }
 
 export type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue' | 'partial';
@@ -152,5 +159,3 @@ export interface CompanySettings {
   iban: string;
   swiftCode: string;
 }
-
-
