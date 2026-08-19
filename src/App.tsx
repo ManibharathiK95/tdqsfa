@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   DepartmentId,
   User,
@@ -62,6 +62,7 @@ const INV_FINALIZED = ['sent', 'paid', 'partial', 'overdue'];
 const RCP_FINALIZED = ['cleared'];
 
 export default function App() {
+  const ignoreCloudUpdate = useRef(false); // <-- ADD THIS SHIELD
   const [users, setUsers] = useState<User[]>(() => Storage.getUsers());
   const [companySettings, setCompanySettings] = useState<CompanySettings>(() =>
     Storage.getCompanySettings()
@@ -114,13 +115,18 @@ export default function App() {
   const [viewingReceipt, setViewingReceipt] = useState<Receipt | null>(null);
 
   useEffect(() => {
-    try {
+   try {
       const dataRef = ref(db, 'erpData');
       const unsubscribe = onValue(dataRef, (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           if (data.users) setUsers(data.users);
-          if (data.companySettings) setCompanySettings(data.companySettings);
+          
+          // ADD THE SHIELD CHECK HERE ↓
+          if (data.companySettings && !ignoreCloudUpdate.current) {
+            setCompanySettings(data.companySettings);
+          }
+          
           if (data.vendors) setVendors(data.vendors);
           if (data.quotations) setQuotations(data.quotations);
           if (data.invoices) setInvoices(data.invoices);
@@ -165,6 +171,7 @@ export default function App() {
   };
 
   const handleSaveCompanySettings = async (newSettings: CompanySettings) => {
+    ignoreCloudUpdate.current = true; // Turn shield ON
     setCompanySettings(newSettings); // Update local state immediately
     
     // Immediately push to Firebase so it doesn't overwrite us
@@ -173,6 +180,8 @@ export default function App() {
     } catch (err) {
       console.error("Failed to sync company settings to cloud", err);
     }
+    // Turn shield OFF after 3 seconds so normal syncing resumes
+    setTimeout(() => { ignoreCloudUpdate.current = false; }, 3000);
   };
   const handleSaveAll = async () => {
     const dataToSave = {
