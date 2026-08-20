@@ -1033,16 +1033,39 @@ body {
 }
 
 @media print {
-  .print-hide {
-    display: none !important;
-  }
-
   body {
     background: white !important;
     margin: 0 !important;
     padding: 10mm !important;
   }
 
+  /* Strip the dark overlay but keep children visible */
+  .fixed.inset-0.z-50 {
+    position: static !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Strip dark modal wrapper but keep children visible */
+  .print-hide {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    color: black !important;
+  }
+
+  /* Hide ONLY the header row (INVOICE badge + buttons) */
+  .print-hide > div:first-of-type {
+    display: none !important;
+  }
+
+  /* A4 paper keeps its border */
   .a4-print-area {
     border: 2px solid #e5e7eb !important;
     border-radius: 8px !important;
