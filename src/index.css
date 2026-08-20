@@ -1033,13 +1033,37 @@ body {
 }
 
 @media print {
-  body {
-    background: white !important;
-    margin: 0 !important;
-    padding: 10mm !important;
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
   }
-   /* Hide ONLY the header row (INVOICE badge + buttons) */
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+  }
   .print-hide > div:first-of-type {
     display: none !important;
+  }
+  #root,
+  .app {
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    background: #fff !important;
+  }
+  * {
+    box-shadow: none !important;
+  }
+  table {
+    page-break-inside: auto !important;
+  }
+  tr {
+    page-break-inside: avoid !important;
   }
 }
