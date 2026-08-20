@@ -1033,37 +1033,42 @@ body {
 }
 
 @media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm;
-  }
-  html,
   body {
+    background: white !important;
     margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    background: #fff !important;
+    padding: 10mm !important;
   }
-  .print-hide > div:first-of-type {
+
+  /* Hide page content behind the modal */
+  .min-h-screen > *:not(.fixed) {
     display: none !important;
   }
-  #root,
-  .app {
-    width: 100% !important;
-    min-height: auto !important;
-    height: auto !important;
-    margin: 0 !important;
+  .min-h-screen > .fixed:not(.inset-0) {
+    display: none !important;
+  }
+
+  /* Strip dark overlay */
+  .fixed.inset-0 {
+    position: static !important;
+    background: none !important;
+    backdrop-filter: none !important;
     padding: 0 !important;
-    display: block !important;
-    background: #fff !important;
+    overflow: visible !important;
   }
-  * {
+
+  /* Strip dark modal wrapper */
+  .print-hide {
+    background: transparent !important;
+    border: none !important;
     box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    color: black !important;
   }
-  table {
-    page-break-inside: auto !important;
-  }
-  tr {
-    page-break-inside: avoid !important;
+
+  /* Hide ONLY the header row (INVOICE badge + buttons) */
+  .print-hide > div:first-of-type {
+    display: none !important;
   }
 }
