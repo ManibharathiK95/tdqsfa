@@ -131,7 +131,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl p-6 relative my-8">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-[850px] max-w-[95vw] shadow-2xl p-6 relative my-8">
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <h3 className="text-base font-bold text-white flex items-center space-x-2">
             <FileText className="w-5 h-5 text-amber-400" />
