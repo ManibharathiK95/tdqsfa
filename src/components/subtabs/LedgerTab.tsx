@@ -57,7 +57,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
   const fmt = (amount: number): string =>
     `${companySettings.currencySymbol || 'AED'} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  // Unique contractors for filter dropdown
   const contractors = useMemo(() => {
     const names = new Set<string>();
     quotations.filter(q => q.deptId === deptId && q.status !== 'voided').forEach(q => names.add(q.clientName));
@@ -66,12 +65,9 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
     return Array.from(names).sort();
   }, [quotations, invoices, deptId]);
 
-  // Build ledger groups: each group = 1 quote/PO + its invoices
   const groups = useMemo((): LedgerGroup[] => {
     const dq = quotations.filter(q => q.deptId === deptId);
     const di = invoices.filter(i => i.deptId === deptId);
-
-    // Find latest non-voided version per quote root
     const latest = new Map<string, Quotation>();
     for (const q of dq) {
       const root = getRootNo(q.quotationNo);
@@ -86,10 +82,8 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
         latest.set(root, q);
       }
     }
-
     const result: LedgerGroup[] = [];
     const usedInvIds = new Set<string>();
-
     for (const [, quote] of latest) {
       if (quote.status === 'voided') continue;
       const verIds = new Set(dq.filter(q => getRootNo(q.quotationNo) === getRootNo(quote.quotationNo)).map(q => q.id));
@@ -97,8 +91,6 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
       linked.forEach(i => usedInvIds.add(i.id));
       result.push({ quote, invoices: linked, groupName: quote.clientName });
     }
-
-    // Direct invoices (no linked quote)
     const direct = di.filter(i => !i.quotationId || !usedInvIds.has(i.id));
     if (direct.length > 0) {
       const map = new Map<string, Invoice[]>();
@@ -111,17 +103,14 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
         result.push({ quote: null, invoices: invs, groupName: client });
       }
     }
-
     return result;
   }, [quotations, invoices, deptId]);
 
-  // Filter by selected contractor
   const filtered = useMemo(() => {
     if (selectedContractor === 'all') return groups;
     return groups.filter(g => g.groupName === selectedContractor);
   }, [groups, selectedContractor]);
 
-  // Get receipts for a specific invoice
   const getRcpts = (inv: Invoice): Receipt[] =>
     receipts.filter(r => r.invoiceNo === inv.invoiceNo || r.invoiceNo === inv.id);
 
@@ -136,77 +125,73 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* ── Filter ── */}
+      {/* Filter */}
       <div className="flex items-center space-x-3">
         <Filter className="w-4 h-4 text-zinc-400" />
         <select
           value={selectedContractor}
           onChange={(e) => setSelectedContractor(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
         >
           <option value="all">All Contractors</option>
           {contractors.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <span className="text-xs text-zinc-500">
-          {filtered.length} project{filtered.length !== 1 ? 's' : ''}
-        </span>
+        <span className="text-xs text-zinc-500">{filtered.length} project{filtered.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* ── Table ── */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+      {/* Table */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-700 bg-zinc-800/60">
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Invoice Date</th>
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[150px]">Invoice No</th>
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[100px]">Status</th>
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Receipt Date</th>
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5">Receipt No</th>
+              <tr className="border-b border-zinc-800">
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-500 tracking-wider px-4 py-3">Inv Date</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-500 tracking-wider px-4 py-3">Invoice No</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-500 tracking-wider px-4 py-3">Status / Amount</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-500 tracking-wider px-4 py-3">Rcpt Date</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-500 tracking-wider px-4 py-3">Receipt / Amount</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={5} className="text-center text-zinc-500 py-16 text-sm">No records found</td></tr>
+                <tr><td colSpan={5} className="text-center text-zinc-600 py-16 text-sm">No records found</td></tr>
               )}
 
               {filtered.map((group, gIdx) => (
                 <React.Fragment key={`g-${gIdx}`}>
 
-                  {/* ── Quote + PO Header Row ── */}
-                  <tr className="bg-zinc-800/40 border-b border-zinc-700/50">
-                    <td colSpan={5} className="px-3 py-2.5">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <div className="flex items-center space-x-2.5 flex-wrap">
+                  {/* ── Quote + PO Header ── */}
+                  <tr className="border-b border-zinc-800 bg-zinc-800/30">
+                    <td colSpan={5} className="px-4 py-3">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 flex-wrap">
                           {group.quote ? (
                             <>
-                              <span className="font-mono text-xs font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
-                              <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border whitespace-nowrap ${statusStyle(group.quote.status)}`}>{group.quote.status}</span>
-                              <span className="text-xs font-semibold text-zinc-300 whitespace-nowrap">{fmt(group.quote.totalAmount)}</span>
+                              <span className="font-mono text-sm font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
+                              <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusStyle(group.quote.status)}`}>{group.quote.status}</span>
+                              <span className="text-sm font-semibold text-zinc-200 whitespace-nowrap">{fmt(group.quote.totalAmount)}</span>
                             </>
                           ) : (
-                            <span className="text-xs text-zinc-500 italic">Direct Invoice — {group.groupName}</span>
+                            <span className="text-sm text-zinc-500 italic">Direct Invoice — {group.groupName}</span>
                           )}
                         </div>
-
-                        {/* PO Section */}
-                        <div className="flex items-center">
+                        <div className="flex items-center shrink-0">
                           {group.quote?.purchaseOrderNo ? (
-                            <span className="text-xs text-zinc-400 whitespace-nowrap">
+                            <span className="text-sm text-zinc-400 whitespace-nowrap">
                               PO: <span className="font-mono font-bold text-zinc-200">{group.quote.purchaseOrderNo}</span>
                               {group.quote.purchaseOrderDate && <span className="text-zinc-500 ml-1.5">{formatDate(group.quote.purchaseOrderDate)}</span>}
                             </span>
                           ) : group.quote ? (
                             editingPO === group.quote.id ? (
-                              <div className="flex items-center space-x-1.5">
-                                <input type="text" placeholder="PO Number" value={poNo} onChange={(e) => setPoNo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSavePO()} className="bg-zinc-700 border border-zinc-600 text-zinc-200 text-xs rounded px-2 py-1 w-28 focus:ring-1 focus:ring-emerald-500 outline-none" autoFocus />
-                                <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="bg-zinc-700 border border-zinc-600 text-zinc-200 text-xs rounded px-2 py-1 focus:ring-1 focus:ring-emerald-500 outline-none" />
-                                <button onClick={handleSavePO} className="p-1 bg-emerald-700 hover:bg-emerald-600 rounded text-white transition-colors"><Save className="w-3 h-3" /></button>
-                                <button onClick={() => { setEditingPO(null); setPoNo(''); setPoDate(''); }} className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded text-zinc-400 transition-colors"><X className="w-3 h-3" /></button>
+                              <div className="flex items-center gap-1.5">
+                                <input type="text" placeholder="PO Number" value={poNo} onChange={(e) => setPoNo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSavePO()} className="bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 w-32 focus:ring-1 focus:ring-emerald-500 outline-none" autoFocus />
+                                <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none" />
+                                <button onClick={handleSavePO} className="p-1.5 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-white transition-colors"><Save className="w-3.5 h-3.5" /></button>
+                                <button onClick={() => { setEditingPO(null); setPoNo(''); setPoDate(''); }} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-400 transition-colors"><X className="w-3.5 h-3.5" /></button>
                               </div>
                             ) : (
-                              <button onClick={() => setEditingPO(group.quote!.id)} className="flex items-center space-x-1 text-[10px] text-zinc-500 hover:text-emerald-400 transition-colors">
-                                <Plus className="w-3 h-3" /><span>Add PO</span>
+                              <button onClick={() => setEditingPO(group.quote!.id)} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-emerald-400 transition-colors px-2 py-1 rounded-lg hover:bg-zinc-800">
+                                <Plus className="w-3.5 h-3.5" /><span>Add PO</span>
                               </button>
                             )
                           ) : null}
@@ -220,39 +205,39 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                     const rcpts = getRcpts(inv);
                     const rows = Math.max(1, rcpts.length);
                     return Array.from({ length: rows }, (_, rIdx) => (
-                      <tr key={`${inv.id}-${rIdx}`} className="border-b border-zinc-800/50 hover:bg-zinc-800/20">
-                        <td className="px-3 py-1.5 text-xs text-zinc-400 font-mono align-top">
+                      <tr key={`${inv.id}-${rIdx}`} className="border-b border-zinc-800/50 hover:bg-zinc-800/20 transition-colors">
+                        <td className="px-4 py-2.5 text-sm text-zinc-400 font-mono align-top">
                           {rIdx === 0 ? formatDate(inv.issueDate) : ''}
                         </td>
-                        <td className="px-3 py-1.5 text-xs font-mono font-bold text-zinc-200 align-top">
+                        <td className="px-4 py-2.5 text-sm font-mono font-bold text-zinc-200 align-top">
                           {rIdx === 0 ? inv.invoiceNo : ''}
                         </td>
-                        <td className="px-3 py-1.5 align-top">
+                        <td className="px-4 py-2.5 align-top">
                           {rIdx === 0 ? (
                             <div>
-                              <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${statusStyle(inv.status)}`}>{inv.status}</span>
-                              <div className="text-xs font-mono text-zinc-400 mt-1">{fmt(inv.totalAmount)}</div>
+                              <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border inline-block ${statusStyle(inv.status)}`}>{inv.status}</span>
+                              <div className="text-sm font-mono text-zinc-300 mt-1.5">{fmt(inv.totalAmount)}</div>
                             </div>
                           ) : ''}
                         </td>
-                        <td className="px-3 py-1.5 text-xs text-zinc-400 font-mono align-top">
+                        <td className="px-4 py-2.5 text-sm text-zinc-400 font-mono align-top">
                           {rcpts[rIdx] ? formatDate(rcpts[rIdx].paymentDate) : ''}
                         </td>
-                        <td className="px-3 py-1.5 align-top">
+                        <td className="px-4 py-2.5 align-top">
                           {rcpts[rIdx] ? (
                             <div>
-                              <span className="text-xs font-mono font-semibold text-zinc-200">{rcpts[rIdx].receiptNo}</span>
-                              <div className="text-xs font-mono text-emerald-400 mt-0.5">{fmt(rcpts[rIdx].amount)}</div>
+                              <span className="text-sm font-mono font-semibold text-zinc-200">{rcpts[rIdx].receiptNo}</span>
+                              <div className="text-sm font-mono text-emerald-400 mt-0.5">{fmt(rcpts[rIdx].amount)}</div>
                             </div>
                           ) : rIdx === 0 ? (
-                            <span className="text-xs text-zinc-600">-</span>
+                            <span className="text-sm text-zinc-700">—</span>
                           ) : ''}
                         </td>
                       </tr>
                     ));
                   }) : (
                     <tr className="border-b border-zinc-800/50">
-                      <td colSpan={5} className="px-3 py-2 text-center text-xs text-zinc-600">No invoices yet</td>
+                      <td colSpan={5} className="px-4 py-3 text-center text-sm text-zinc-600">No invoices yet</td>
                     </tr>
                   )}
                 </React.Fragment>
