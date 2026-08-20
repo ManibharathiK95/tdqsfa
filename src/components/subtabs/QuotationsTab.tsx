@@ -124,7 +124,7 @@ export const QuotationsTab: React.FC<QuotationsTabProps> = ({
         <div className="flex items-center space-x-2 shrink-0">
           <div className="flex items-center space-x-1 bg-slate-950 border border-slate-800 p-1 rounded-xl text-xs">
             <Filter className="w-3.5 h-3.5 text-slate-400 ml-1.5" />
-            {(['all', 'draft', 'sent', 'approved', 'rejected'] as const).map((s) => (
+            {(['all', 'draft', 'sent', 'approved', 'rejected', 'modified', 'voided'] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
