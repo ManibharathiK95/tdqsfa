@@ -160,31 +160,27 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
               {filtered.map((group, gIdx) => (
                 <React.Fragment key={`g-${gIdx}`}>
 
-                  {/* ── Quote + PO Header ── */}
+                {/* ── Quote + PO Header ── */}
                   <tr className="border-b border-zinc-800 bg-zinc-800/30">
                     <td colSpan={5} className="px-4 py-3">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          {group.quote ? (
-                            <>
-                              <span className="font-mono text-sm font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
-                              <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusStyle(group.quote.status)}`}>{group.quote.status}</span>
-                              <span className="text-sm font-semibold text-zinc-200 whitespace-nowrap">{fmt(group.quote.totalAmount)}</span>
-                            </>
-                          ) : (
-                            <span className="text-sm text-zinc-500 italic">Direct Invoice — {group.groupName}</span>
-                          )}
-                        </div>
-                        <div className="flex items-center shrink-0">
-                          {group.quote?.purchaseOrderNo ? (
-                            <span className="text-sm text-zinc-400 whitespace-nowrap">
-                              PO: <span className="font-mono font-bold text-zinc-200">{group.quote.purchaseOrderNo}</span>
-                              {group.quote.purchaseOrderDate && <span className="text-zinc-500 ml-1.5">{formatDate(group.quote.purchaseOrderDate)}</span>}
-                            </span>
-                          ) : group.quote ? (
-                            editingPO === group.quote.id ? (
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {group.quote ? (
+                          <>
+                            <span className="font-mono text-sm font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
+                            <span className="text-zinc-600">/</span>
+                            <span className="text-sm font-semibold text-zinc-200 whitespace-nowrap">{fmt(group.quote.totalAmount)}</span>
+                            <span className="text-zinc-600">/</span>
+                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border whitespace-nowrap ${statusStyle(group.quote.status)}`}>{group.quote.status}</span>
+                            <span className="text-zinc-700">|</span>
+                            {group.quote.purchaseOrderNo ? (
+                              <span className="text-sm text-zinc-300 whitespace-nowrap font-mono">
+                                PO: {group.quote.purchaseOrderNo}
+                                {group.quote.purchaseOrderDate && <span className="text-zinc-400 ml-1.5">/ Dated: {formatDate(group.quote.purchaseOrderDate)}</span>}
+                              </span>
+                            ) : editingPO === group.quote.id ? (
                               <div className="flex items-center gap-1.5">
-                                <input type="text" placeholder="PO Number" value={poNo} onChange={(e) => setPoNo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSavePO()} className="bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 w-32 focus:ring-1 focus:ring-emerald-500 outline-none" autoFocus />
+                                <span className="text-sm text-zinc-500">PO:</span>
+                                <input type="text" placeholder="Number" value={poNo} onChange={(e) => setPoNo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSavePO()} className="bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 w-28 focus:ring-1 focus:ring-emerald-500 outline-none" autoFocus />
                                 <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} className="bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-emerald-500 outline-none" />
                                 <button onClick={handleSavePO} className="p-1.5 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-white transition-colors"><Save className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => { setEditingPO(null); setPoNo(''); setPoDate(''); }} className="p-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-400 transition-colors"><X className="w-3.5 h-3.5" /></button>
@@ -193,9 +189,11 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                               <button onClick={() => setEditingPO(group.quote!.id)} className="flex items-center gap-1 text-xs text-zinc-500 hover:text-emerald-400 transition-colors px-2 py-1 rounded-lg hover:bg-zinc-800">
                                 <Plus className="w-3.5 h-3.5" /><span>Add PO</span>
                               </button>
-                            )
-                          ) : null}
-                        </div>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-sm text-zinc-500 italic">Direct Invoice — {group.groupName}</span>
+                        )}
                       </div>
                     </td>
                   </tr>
