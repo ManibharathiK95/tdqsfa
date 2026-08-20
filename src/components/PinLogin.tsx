@@ -85,45 +85,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ users, onLoginSuccess }) => 
           </p>
         </div>
 
-        {/* User Selection Chips */}
-        <div className="mb-6">
-          <label className="block text-xs font-bold uppercase tracking-wider text-zinc-200 mb-2.5">
-            Select User Account:
-          </label>
-          <div className="grid grid-cols-2 gap-2.5">
-            {users.map((u) => {
-              const isSelected = u.id === selectedUser.id;
-              return (
-                <button
-                  key={u.id}
-                  onClick={() => handleSelectUser(u)}
-                  className={`flex items-center space-x-2.5 p-3 rounded-xl border text-left transition-all ${
-                    isSelected
-                      ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-500/50'
-                      : 'bg-zinc-900/80 border-zinc-800 text-zinc-200 hover:bg-zinc-850 hover:border-zinc-700'
-                  }`}
-                >
-                  <div
-                    className={`w-9 h-9 rounded-lg ${
-                      isSelected ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-200'
-                    } flex items-center justify-center font-bold text-xs shrink-0 shadow`}
-                  >
-                    {u.name.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div className="truncate min-w-0 flex-1">
-                    <p className="text-xs font-bold truncate leading-tight text-white">{u.name}</p>
-                    <p className="text-[11px] text-zinc-300 capitalize truncate mt-0.5">
-                      {u.role === 'admin' ? 'System Admin' : u.departmentId}
-                    </p>
-                  </div>
-                  {isSelected && <UserCheck className="w-4 h-4 text-emerald-400 shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* PIN Dots Indicator */}
+       {/* PIN Dots Indicator */}
         <div className={`mb-6 text-center ${isShaking ? 'animate-bounce' : ''}`}>
           <div className="text-xs font-semibold text-zinc-200 mb-2 flex items-center justify-center space-x-1.5">
             <KeyRound className="w-4 h-4 text-emerald-400" />
