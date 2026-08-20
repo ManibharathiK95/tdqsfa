@@ -164,18 +164,22 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                   <tr className="border-b border-zinc-800 bg-zinc-800/30">
                     <td colSpan={5} className="px-4 py-3">
                       <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                           {group.quote ? (
-                            <span className="font-mono text-sm font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
+                            <>
+                              <span className="font-mono text-sm font-bold text-emerald-400 whitespace-nowrap">{group.quote.quotationNo}</span>
+                              <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border whitespace-nowrap ${statusStyle(group.quote.status)}`}>{group.quote.status}</span>
+                              <span className="text-sm font-semibold text-zinc-200 whitespace-nowrap">{fmt(group.quote.totalAmount)}</span>
+                            </>
                           ) : (
                             <span className="text-sm text-zinc-500 italic">Direct Invoice — {group.groupName}</span>
                           )}
                         </div>
                         <div className="flex items-center shrink-0">
                           {group.quote?.purchaseOrderNo ? (
-                            <span className="text-sm text-zinc-300 whitespace-nowrap font-mono">
-                              PO: {group.quote.purchaseOrderNo}
-                              {group.quote.purchaseOrderDate && <span className="text-zinc-400 ml-2">/ Dated: {formatDate(group.quote.purchaseOrderDate)}</span>}
+                            <span className="text-sm text-zinc-400 whitespace-nowrap">
+                              PO: <span className="font-mono font-bold text-zinc-200">{group.quote.purchaseOrderNo}</span>
+                              {group.quote.purchaseOrderDate && <span className="text-zinc-500 ml-1.5">{formatDate(group.quote.purchaseOrderDate)}</span>}
                             </span>
                           ) : group.quote ? (
                             editingPO === group.quote.id ? (
