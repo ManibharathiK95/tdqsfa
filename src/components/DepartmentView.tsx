@@ -16,6 +16,7 @@ import { InvoicesTab } from './subtabs/InvoicesTab';
 import { ReceiptsTab } from './subtabs/ReceiptsTab';
 import { IncomeExpensesTab } from './subtabs/IncomeExpensesTab';
 import { ExportReportsTab } from './subtabs/ExportReportsTab';
+import { LedgerTab } from './subtabs/LedgerTab';
 
 import {
   LayoutDashboard,
@@ -25,6 +26,7 @@ import {
   TrendingDown,
   FileSpreadsheet,
   CheckSquare,
+  BookOpen,
 } from 'lucide-react';
 
 interface DepartmentViewProps {
@@ -63,9 +65,11 @@ interface DepartmentViewProps {
 
   onImportFullBackup: (data: any) => void;
   onResetFactoryData: () => void;
+  onSaveModifiedQuotation: (data: Partial<Quotation>) => void;
+  onSavePurchaseOrder: (quotationId: string, poNo: string, poDate: string) => void;
 }
 
-export type SubTabId = 'overview' | 'vendors' | 'quotations' | 'invoices' | 'receipts' | 'finance' | 'export';
+export type SubTabId = 'overview' | 'vendors' | 'quotations' | 'invoices' | 'receipts' | 'finance' | 'ledger' | 'export';
 
 export const DepartmentView: React.FC<DepartmentViewProps> = ({
   deptId,
@@ -97,6 +101,8 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
   onDeleteTransaction,
   onImportFullBackup,
   onResetFactoryData,
+  onSaveModifiedQuotation,
+  onSavePurchaseOrder,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTabId>('overview');
 
@@ -110,6 +116,7 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
     { id: 'invoices', label: 'Invoices & Billing', icon: CheckSquare, count: invoices.filter(i => deptId === 'all' || i.deptId === deptId).length },
     { id: 'receipts', label: 'Receipts & Clearance', icon: ReceiptIcon, count: receipts.filter(r => deptId === 'all' || r.deptId === deptId).length },
     { id: 'finance', label: 'Income & Expenses', icon: TrendingDown, count: transactions.filter(t => deptId === 'all' || t.deptId === deptId).length },
+    { id: 'ledger', label: 'Ledger', icon: BookOpen },
     { id: 'export', label: 'Export & Reports', icon: FileSpreadsheet },
   ];
 
@@ -225,6 +232,17 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
         />
       )}
 
+       {activeSubTab === 'ledger' && (
+        <LedgerTab
+          deptId={deptId}
+          quotations={quotations}
+          invoices={invoices}
+          receipts={receipts}
+          companySettings={companySettings}
+          onSavePurchaseOrder={onSavePurchaseOrder}
+        />
+      )}
+      
       {activeSubTab === 'export' && (
         <ExportReportsTab
           deptId={deptId}
