@@ -1038,19 +1038,8 @@ body {
     margin: 0 !important;
     padding: 10mm !important;
   }
-
    /* Hide ONLY the header row (INVOICE badge + buttons) */
   .print-hide > div:first-of-type {
     display: none !important;
-  }
-
-  /* A4 paper keeps its border */
-  .a4-print-area {
-    border: 2px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    padding: 20mm !important;
-    box-shadow: none !important;
-    max-width: 210mm !important;
-    margin: 0 auto !important;
   }
 }
