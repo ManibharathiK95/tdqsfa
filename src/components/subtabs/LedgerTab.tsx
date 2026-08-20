@@ -158,10 +158,10 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-700 bg-zinc-800/60">
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Inv Date</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Invoice Date</th>
                 <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[150px]">Invoice No</th>
                 <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[100px]">Status</th>
-                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Rcpt Date</th>
+                <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5 w-[85px]">Receipt Date</th>
                 <th className="text-left text-[10px] font-bold uppercase text-zinc-400 tracking-wider px-3 py-2.5">Receipt No</th>
               </tr>
             </thead>
