@@ -208,7 +208,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+      <div className="relative max-h-[90vh] w-fit max-w-[95vw] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <h3 className="flex items-center space-x-2 text-base font-bold text-white">
