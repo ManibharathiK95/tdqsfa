@@ -16,11 +16,12 @@ interface QuotationModalProps {
   companySettings: CompanySettings;
   vendors?: VendorContractor[];
   suggestedNo?: string;
+  onSaveModified?: (quotation: Partial<Quotation>) => void;
 }
 
 export const QuotationModal: React.FC<QuotationModalProps> = ({
   isOpen, onClose, onSave, initialData, defaultDeptId = 'design',
-  companySettings, vendors = [], suggestedNo = '',
+  companySettings, vendors = [], suggestedNo = '', onSaveModified,
 }) => {
   const [deptId, setDeptId] = useState<DepartmentId>(defaultDeptId === 'all' ? 'design' : defaultDeptId);
   const [quotationNo, setQuotationNo] = useState('');
@@ -256,6 +257,26 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
           <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">Cancel</button>
+            {initialData && onSaveModified && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!projectTitle.trim() || !clientName.trim()) return;
+                  onSaveModified({
+                    id: initialData.id,
+                    quotationNo: initialData.quotationNo,
+                    deptId, clientName, clientEmail, projectTitle, date, validUntil, status,
+                    items, subtotal, taxRate, taxAmount, discount: 0, totalAmount, notes, terms,
+                    createdAt: initialData.createdAt,
+                  });
+                  onClose();
+                }}
+                className="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white font-bold rounded-xl shadow-md"
+              >
+                Save as Modified
+              </button>
+            )}
             <button type="submit" className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-md">{initialData ? 'Update' : 'Save Quotation'}</button>
           </div>
         </form>
