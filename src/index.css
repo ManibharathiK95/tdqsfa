@@ -1036,7 +1036,7 @@ body {
   body {
     background: white !important;
     margin: 0 !important;
-    padding: 10mm !important;
+    padding: 0 !important;
   }
 
   /* Hide page content behind the modal */
