@@ -105,7 +105,7 @@ export const AdminSettingsModal: React.FC<AdminSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="relative my-8 w-full max-w-4xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+      <div className="relative my-8 w-[850px] max-w-[95vw] rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
 
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <h3 className="flex items-center gap-2 text-base font-bold text-white">
