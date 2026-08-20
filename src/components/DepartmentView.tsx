@@ -192,6 +192,7 @@ export const DepartmentView: React.FC<DepartmentViewProps> = ({
           onDeleteQuotation={onDeleteQuotation}
           onConvertToInvoice={onConvertToInvoice}
           onViewQuotation={onViewQuotation}
+          onSaveModifiedQuotation={onSaveModifiedQuotation}
         />
       )}
 
