@@ -542,7 +542,7 @@ export default function App() {
       </main>
 
       <VendorModal isOpen={isVendorModalOpen} onClose={() => setIsVendorModalOpen(false)} onSave={handleSaveVendor} initialData={editingVendor} defaultDeptId={activeDeptId} />
-      <QuotationModal isOpen={isQuotationModalOpen} onClose={() => setIsQuotationModalOpen(false)} onSave={handleSaveQuotation} initialData={editingQuotation} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedQteNo} />
+      <QuotationModal isOpen={isQuotationModalOpen} onClose={() => setIsQuotationModalOpen(false)} onSave={handleSaveQuotation} onSaveModified={handleSaveModifiedQuotation} initialData={editingQuotation} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedQteNo} />
       <InvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onSave={handleSaveInvoice} initialData={editingInvoice} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedInvNo} />
       <ReceiptModal isOpen={isReceiptModalOpen} onClose={() => setIsReceiptModalOpen(false)} onSave={handleSaveReceipt} defaultDeptId={activeDeptId} initialInvoice={receiptInvoice} companySettings={companySettings} vendors={contextVendors} suggestedNo={suggestedRcptNo} />
       <TransactionModal isOpen={isTransactionModalOpen} onClose={() => setIsTransactionModalOpen(false)} onSave={handleSaveTransaction} defaultDeptId={activeDeptId} companySettings={companySettings} vendors={contextVendors} />
